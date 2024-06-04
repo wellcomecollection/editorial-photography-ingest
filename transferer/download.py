@@ -47,3 +47,10 @@ def get_bucket():
     S3 = session.resource('s3')
     return S3.Bucket("wellcomecollection-editorial-photography")
 
+
+if __name__ == "__main__":
+    import sys
+    shoot_number = sys.argv[1]
+    download_folder = os.path.join("download", shoot_number)
+    os.makedirs(download_folder, exist_ok=True)
+    download_shoot_folder(get_bucket(), sys.argv[1], download_folder)
