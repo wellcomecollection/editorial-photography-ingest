@@ -2,6 +2,7 @@ import os
 import moto
 import boto3
 import pytest
+import pyfakefs
 from transferrer.download import get_bucket, download_shoot_folder
 
 HERE = os.path.dirname(os.path.abspath(__file__))
