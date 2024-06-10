@@ -2,3 +2,4 @@
 pytest
 pyfakefs
 moto[s3]
+black

@@ -1,6 +1,6 @@
 import boto3
 import os
-from make_zip import discard_file
+from .make_zip import discard_file
 
 
 def shoot_number_to_folder_path(shoot_number):
