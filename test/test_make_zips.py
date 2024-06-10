@@ -3,9 +3,8 @@ import os
 import zipfile
 import csv
 import pytest
-import pyfakefs
 
-from make_zip import create_born_digital_zips
+from transferrer.make_zip import create_born_digital_zips
 
 
 def populate_source_dir_with_images(fs, name, count):

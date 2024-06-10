@@ -1,4 +1,4 @@
-from make_zip import shoot_number_to_accession_id
+from transferrer.make_zip import shoot_number_to_accession_id
 import pytest
 
 
