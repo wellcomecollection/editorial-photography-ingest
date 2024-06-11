@@ -53,7 +53,7 @@ def test_single_zip(fs):
     with zipfile.ZipFile("./1234_G00DCAFE.zip") as zip_file:
         zip_file.extractall("/unzipped")
         # with a metadata csv in the root of the zip
-        assert_csv_has_accession_id("/unzipped/metadata.csv", "1234_G00DCAFE")
+        assert_csv_has_accession_id("/unzipped/metadata/metadata.csv", "1234_G00DCAFE")
         # and the photos in an ./objects folder
         assert os.path.exists("/unzipped/objects/G00DCAFE_001.tif")
         assert os.path.exists("/unzipped/objects/G00DCAFE_002.tif")
@@ -68,7 +68,7 @@ def test_multiple_zips(fs):
     # it creates zips named using the accession and shoot numbers, with a three-digit numeric suffix
     with zipfile.ZipFile("./1234_G00DCAFE_001.zip") as zip_file:
         zip_file.extractall("/unzipped_001")
-        assert_csv_has_accession_id("/unzipped_001/metadata.csv", "1234_G00DCAFE_001")
+        assert_csv_has_accession_id("/unzipped_001/metadata/metadata.csv", "1234_G00DCAFE_001")
         # The objects chosen for each zip are predictable and consistent.
         # They are sorted alphanumerically before being sliced into groups to place into each zip
         objects = os.listdir("/unzipped_001/objects")
@@ -77,7 +77,7 @@ def test_multiple_zips(fs):
 
     with zipfile.ZipFile("./1234_G00DCAFE_002.zip") as zip_file:
         zip_file.extractall("/unzipped_002")
-        assert_csv_has_accession_id("/unzipped_002/metadata.csv", "1234_G00DCAFE_002")
+        assert_csv_has_accession_id("/unzipped_002/metadata/metadata.csv", "1234_G00DCAFE_002")
         objects = os.listdir("/unzipped_002/objects")
         assert len(objects) == 10
         assert set(filename[:3] for filename in objects) == {"BBB"}
