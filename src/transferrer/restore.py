@@ -23,13 +23,13 @@ def restore_shoot_folder(bucket, shoot_number):
 
 
 def restore_shoot_folders(shoot_numbers):
+    bucket = get_source_bucket()
     for shoot_number in shoot_numbers:
-        restore_shoot_folder(get_source_bucket(), shoot_number)
+        restore_shoot_folder(bucket, shoot_number)
 
 
 def main():
     import sys
-    shoot_number = sys.argv[1]
     restore_shoot_folders(sys.argv[1:])
 
 
