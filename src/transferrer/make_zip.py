@@ -45,8 +45,8 @@ def generate_metadata_csv(csvfile, accession_id):
 
 
 def create_born_digital_folder(source_files, target_directory, accession_id):
-    os.makedirs(target_directory, exist_ok=True)
-    with open(os.path.join(target_directory, "metadata.csv"), "w") as csvfile:
+    os.makedirs(os.path.join(target_directory, "metadata"), exist_ok=True)
+    with open(os.path.join(target_directory, "metadata", "metadata.csv"), "w") as csvfile:
         generate_metadata_csv(csvfile, accession_id)
     move_files_to_objects_folder(source_files, target_directory)
     return target_directory
