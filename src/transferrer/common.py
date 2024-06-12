@@ -1,16 +1,20 @@
 import os
 import boto3
+import botocore
 
 SOURCE_BUCKET = "wellcomecollection-editorial-photography"
 
 
-def get_source_bucket():
-    return get_source_client().Bucket(SOURCE_BUCKET)
+def get_source_bucket(max_connections=10):
+    return get_source_client(max_connections).Bucket(SOURCE_BUCKET)
 
 
-def get_source_client():
+def get_source_client(max_connections):
     session = boto3.Session()
-    return session.resource('s3')
+    return session.resource('s3', config=botocore.config.Config(
+        region_name="eu-west-1",
+        max_pool_connections=max_connections
+    ))
 
 
 def shoot_number_to_folder_path(shoot_number):
@@ -71,4 +75,4 @@ def discard_file(file):
     False
 
     """
-    return os.path.basename(file) == "shoot.csv" or file[-4:] == ".xml"
+    return file[-4:] in (".csv", ".xml")
