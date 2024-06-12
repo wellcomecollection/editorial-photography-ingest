@@ -1,14 +1,15 @@
-import os
+import logging
 
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
 
+logger = logging.getLogger(__name__)
+
 
 def restore_s3_folder(bucket, s3_folder: str, days_to_keep=1):
-    print(s3_folder)
+    logger.info(f"restoring folder {s3_folder}")
     for obj in bucket.objects.filter(Prefix=s3_folder):
-        print(obj.key)
         if should_download_file(obj.key):
-            print(obj.restore_object(
+            logger.info(obj.restore_object(
                 RestoreRequest={
                     'Days': days_to_keep,
                     'GlacierJobParameters': {
@@ -16,6 +17,8 @@ def restore_s3_folder(bucket, s3_folder: str, days_to_keep=1):
                     }
                 }
             ))
+        else:
+            logger.info(f"ignoring {obj.key}")
 
 
 def restore_shoot_folder(bucket, shoot_number):
@@ -25,7 +28,7 @@ def restore_shoot_folder(bucket, shoot_number):
 def restore_shoot_folders(shoot_numbers):
     bucket = get_source_bucket()
     for shoot_number in shoot_numbers:
-        print(f"restoring {shoot_number}")
+        logger.info(f"restoring shoot {shoot_number}")
         restore_shoot_folder(bucket, shoot_number)
 
 
