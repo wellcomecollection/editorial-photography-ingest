@@ -7,6 +7,8 @@ import shutil
 import os
 import itertools
 
+from transferrer.common import discard_file
+
 
 def shoot_number_to_accession_id(accession_number, shoot_number):
     """
@@ -132,36 +134,3 @@ def batched(iterable, n):
     while batch := tuple(itertools.islice(iterator, n)):
         yield batch
 
-
-def discard_file(file):
-    """
-    The metadata files from the original upload are not wanted, and should be discarded
-    shoot.csv is one such file...
-
-    >>> discard_file("/path/to/shoot.csv")
-    True
-
-    ...as is an XML file that is eponymous with the shoot number.
-
-    >>> discard_file("/path/to/CP_000159.xml")
-    True
-
-    For ease of writing, all XML files are discarded.
-
-    >>> discard_file("/path/to/HelloWorld.xml")
-    True
-
-    The intent is to retain *.tif files...
-
-    >>> discard_file("/path/to/C0007851.tif")
-    False
-
-    ...but this function focuses on discarding the files we know we don't want
-    rather than retaining certain files, in case a future ingest needs to
-    import other formats, such as video.
-
-    >>> discard_file("/path/to/C0007851.mpg")
-    False
-
-    """
-    return os.path.basename(file) == "shoot.csv" or file[-4:] == ".xml"
