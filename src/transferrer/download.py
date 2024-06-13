@@ -39,5 +39,4 @@ if __name__ == "__main__":
     import sys
     shoot_number = sys.argv[1]
     download_folder = os.path.join("download", shoot_number)
-    os.makedirs(download_folder, exist_ok=True)
-    download_shoot_folder(get_source_bucket(THREADS), sys.argv[1], download_folder)
+    download_shoot(sys.argv[1], download_folder)

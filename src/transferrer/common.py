@@ -4,7 +4,6 @@ import botocore
 
 SOURCE_BUCKET = "wellcomecollection-editorial-photography"
 
-
 def get_source_bucket(max_connections=10):
     return get_source_client(max_connections).Bucket(SOURCE_BUCKET)
 
