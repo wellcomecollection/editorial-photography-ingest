@@ -3,14 +3,34 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
-
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
 
 logger = logging.getLogger(__name__)
-THREADS = 20
+
+# This variable governs the degree of parallelism to use when downloading files.
+# The correct number is to be discovered by experimentation
+THREADS = 10
+
+
+def download_shoot(shoot_number, local_dir):
+    # Allowing enough connections for each thread to have two of them
+    # prevents the `urllib3.connectionpool:Connection pool is full` warning
+    # and allows for better connection reuse.
+    download_shoot_folder(get_source_bucket(max_connections=THREADS * 2), shoot_number, local_dir)
+
+
+def download_shoot_folder(bucket, shoot_number, local_dir):
+    download_s3_folder(bucket, shoot_number_to_folder_path(shoot_number), local_dir)
 
 
 def download_s3_folder(bucket, s3_folder: str, local_dir: str):
+    """
+    Download the relevant content from an s3 folder to local_dir.
+
+    This function runs parallel reads according to the AWS guidance here:
+    https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/run-parallel-reads-of-s3-objects-by-using-python-in-an-aws-lambda-function.html
+
+    """
     os.makedirs(local_dir, exist_ok=True)
     with ThreadPoolExecutor(max_workers=THREADS) as executor:
         for key in executor.map(
@@ -27,17 +47,8 @@ def download_s3_file(object_summary, *, local_dir: str, s3_folder: str):
     return object_summary.key
 
 
-def download_shoot_folder(bucket, shoot_number, local_dir):
-    download_s3_folder(bucket, shoot_number_to_folder_path(shoot_number), local_dir)
-
-
-def download_shoot(shoot_number, local_dir):
-    download_shoot_folder(get_source_bucket(), shoot_number, local_dir)
-
-
 if __name__ == "__main__":
     import sys
     shoot_number = sys.argv[1]
     download_folder = os.path.join("download", shoot_number)
-    os.makedirs(download_folder, exist_ok=True)
-    download_shoot_folder(get_source_bucket(THREADS), sys.argv[1], download_folder)
+    download_shoot(sys.argv[1], download_folder)

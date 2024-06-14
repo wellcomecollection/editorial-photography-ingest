@@ -12,7 +12,6 @@ def get_source_bucket(max_connections=10):
 def get_source_client(max_connections):
     session = boto3.Session()
     return session.resource('s3', config=botocore.config.Config(
-        region_name="eu-west-1",
         max_pool_connections=max_connections
     ))
 
@@ -60,6 +59,11 @@ def discard_file(file):
     For ease of writing, all XML files are discarded.
 
     >>> discard_file("/path/to/HelloWorld.xml")
+    True
+
+    Similarly, although in real data, the CSV file is always "shoot.csv", there are some test shoots
+    with a different name for this file, so all CSVs are discarded
+    >>> discard_file("/path/to/shoot - 1381-06-13 wat.csv")
     True
 
     The intent is to retain *.tif files...
