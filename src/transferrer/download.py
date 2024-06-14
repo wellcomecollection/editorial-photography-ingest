@@ -3,11 +3,18 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
-
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
 
 logger = logging.getLogger(__name__)
 THREADS = 20
+
+
+def download_shoot(shoot_number, local_dir):
+    download_shoot_folder(get_source_bucket(), shoot_number, local_dir)
+
+
+def download_shoot_folder(bucket, shoot_number, local_dir):
+    download_s3_folder(bucket, shoot_number_to_folder_path(shoot_number), local_dir)
 
 
 def download_s3_folder(bucket, s3_folder: str, local_dir: str):
@@ -25,14 +32,6 @@ def download_s3_file(object_summary, *, local_dir: str, s3_folder: str):
     target = os.path.join(local_dir, os.path.relpath(object_summary.key, s3_folder))
     object_summary.Object().download_file(target)
     return object_summary.key
-
-
-def download_shoot_folder(bucket, shoot_number, local_dir):
-    download_s3_folder(bucket, shoot_number_to_folder_path(shoot_number), local_dir)
-
-
-def download_shoot(shoot_number, local_dir):
-    download_shoot_folder(get_source_bucket(), shoot_number, local_dir)
 
 
 if __name__ == "__main__":

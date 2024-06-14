@@ -25,7 +25,6 @@ def restore_s3_folder(bucket, s3_folder: str, days_to_keep=1):
                     logger.info(f"attempt to restore non-glacier object: {obj.key}")
                 else:
                     raise
-
         else:
             logger.info(f"ignoring {obj.key}")
 

@@ -16,7 +16,6 @@ def get_source_client(max_connections):
         max_pool_connections=max_connections
     ))
 
-
 def shoot_number_to_folder_path(shoot_number):
     """
     A shoot number consists of two letters followed by six digits
