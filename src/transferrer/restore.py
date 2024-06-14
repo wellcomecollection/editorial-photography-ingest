@@ -26,7 +26,6 @@ def restore_s3_folder(bucket, s3_folder: str, days_to_keep=1):
         else:
             logger.info(f"ignoring {obj.key}")
 
-
 def restore_shoot_folder(bucket, shoot_number):
     restore_s3_folder(bucket, shoot_number_to_folder_path(shoot_number))
 
