@@ -1,4 +1,5 @@
 import os.path
+from contextlib import contextmanager
 import moto
 import boto3
 import pytest
@@ -7,29 +8,41 @@ from transferrer.common import get_source_bucket
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-
 @pytest.fixture
-def empty_bucket():
+def moto_s3():
     moto_fake = moto.mock_aws()
     try:
         moto_fake.start()
-        conn = boto3.resource('s3', region_name="eu-west-1",)
-        conn.create_bucket(CreateBucketConfiguration={
-            'LocationConstraint': 'eu-west-1'
-        }, Bucket="wellcomecollection-editorial-photography")
-        yield conn
+        yield boto3.resource(service_name='s3', region_name="eu-west-1")
     finally:
         moto_fake.stop()
+
+@pytest.fixture
+def empty_bucket(moto_s3):
+    @contextmanager
+    def _empty_bucket(bucket_name):
+        yield moto_s3.create_bucket(CreateBucketConfiguration={
+            'LocationConstraint': 'eu-west-1'
+        }, Bucket=bucket_name)
+    yield _empty_bucket
 
 
 @pytest.fixture
 def available_shoot_bucket(empty_bucket):
-    return populate_bucket(get_source_bucket(), extra_args={})
+    with empty_bucket("wellcomecollection-editorial-photography") as bucket:
+        yield populate_bucket(bucket, extra_args={})
 
 
 @pytest.fixture
 def glacier_shoot_bucket(empty_bucket):
-    return populate_bucket(get_source_bucket(), extra_args={'StorageClass': 'GLACIER'})
+    with empty_bucket("wellcomecollection-editorial-photography") as bucket:
+        yield populate_bucket(bucket, extra_args={'StorageClass': 'GLACIER'})
+
+
+@pytest.fixture
+def target_bucket(empty_bucket):
+    with empty_bucket("wellcomecollection-archivematica-staging-transfer-source") as bucket:
+        yield bucket
 
 
 def populate_bucket(bucket, extra_args):
