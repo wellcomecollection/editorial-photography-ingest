@@ -1,5 +1,5 @@
 import logging
-
+import boto3
 from botocore.exceptions import ClientError
 
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
@@ -34,7 +34,7 @@ def restore_shoot_folder(bucket, shoot_number):
 
 
 def restore_shoot_folders(shoot_numbers):
-    bucket = get_source_bucket()
+    bucket = get_source_bucket(boto3.Session())
     for shoot_number in shoot_numbers:
         logger.info(f"restoring shoot {shoot_number}")
         restore_shoot_folder(bucket, shoot_number)
