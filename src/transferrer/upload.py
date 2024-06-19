@@ -18,4 +18,4 @@ def get_target_bucket(s3, target_bucket):
 
 
 if __name__ == "__main__":
-    upload(boto3.Session(os.environ["AWS_TARGET_PROFILE"]).resource('s3'), sys.argv[1])
+    upload( boto3.Session(profile_name=os.environ["AWS_TARGET_PROFILE"]).resource('s3'), sys.argv[1])
