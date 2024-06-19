@@ -30,7 +30,7 @@ def generate_metadata_csv(csvfile, accession_id):
     The accession id is placed in the final cell
     >>> import io
     >>> generate_metadata_csv(io.StringIO(), shoot_number_to_accession_id("2754", "CP000159")).getvalue()
-    'filename,collection_reference,accession_number\\r\\n/objects,WT,2754_CP000159\\r\\n'
+    'filename,collection_reference,accession_number\\r\\nobjects/,WT,2754_CP000159\\r\\n'
     """
     writer = csv.DictWriter(
         csvfile, fieldnames=["filename", "collection_reference", "accession_number"]
