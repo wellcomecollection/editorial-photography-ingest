@@ -25,7 +25,7 @@ def assert_csv_has_accession_id(csv_path, accession_id):
             csv_file
         )  # Ensures that the header row is present and correct
         assert next(reader) == {
-            "filename": "/objects",
+            "filename": "objects/",
             "collection_reference": "WT",
             "accession_number": accession_id,
         }
