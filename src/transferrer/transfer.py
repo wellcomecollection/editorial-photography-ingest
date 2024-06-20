@@ -19,8 +19,8 @@ def transfer_shoot(from_session, to_session, shoot_number, accession_number):
 if __name__ == "__main__":
     import sys
     transfer_shoot(
-        from_session=boto3.Session(profile_name=os.environ["AWS_SOURCE_PROFILE"]).resource('s3'),
-        to_session=boto3.Session(profile_name=os.environ["AWS_TARGET_PROFILE"]).resource('s3'),
+        from_session=boto3.Session(profile_name=os.environ["AWS_SOURCE_PROFILE"]),
+        to_session=boto3.Session(profile_name=os.environ["AWS_TARGET_PROFILE"]),
         shoot_number=sys.argv[1],
         accession_number="2754"
     )

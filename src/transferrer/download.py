@@ -2,6 +2,7 @@ import os
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
+import boto3
 
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
 
@@ -12,11 +13,11 @@ logger = logging.getLogger(__name__)
 THREADS = 10
 
 
-def download_shoot(shoot_number, local_dir):
+def download_shoot(session: boto3.session.Session, shoot_number, local_dir):
     # Allowing enough connections for each thread to have two of them
     # prevents the `urllib3.connectionpool:Connection pool is full` warning
     # and allows for better connection reuse.
-    download_shoot_folder(get_source_bucket(max_connections=THREADS * 2), shoot_number, local_dir)
+    download_shoot_folder(get_source_bucket(session, max_connections=THREADS * 2), shoot_number, local_dir)
 
 
 def download_shoot_folder(bucket, shoot_number, local_dir):
@@ -51,4 +52,4 @@ if __name__ == "__main__":
     import sys
     shoot_number = sys.argv[1]
     download_folder = os.path.join("download", shoot_number)
-    download_shoot(sys.argv[1], download_folder)
+    download_shoot(boto3.Session(), sys.argv[1], download_folder)

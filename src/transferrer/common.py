@@ -5,11 +5,11 @@ import botocore
 SOURCE_BUCKET = "wellcomecollection-editorial-photography"
 
 
-def get_source_bucket(session, max_connections=10):
+def get_source_bucket(session: boto3.session.Session, max_connections=10):
     return get_source_client(session, max_connections).Bucket(SOURCE_BUCKET)
 
 
-def get_source_client(session, max_connections):
+def get_source_client(session: boto3.session.Session, max_connections):
     return session.resource('s3', config=botocore.config.Config(
         max_pool_connections=max_connections
     ))
