@@ -30,7 +30,7 @@ def generate_metadata_csv(csvfile, accession_id):
     The accession id is placed in the final cell
     >>> import io
     >>> generate_metadata_csv(io.StringIO(), shoot_number_to_accession_id("2754", "CP000159")).getvalue()
-    'filename,collection_reference,accession_number\\r\\n/objects,WT,2754_CP000159\\r\\n'
+    'filename,collection_reference,accession_number\\r\\nobjects/,WT,2754_CP000159\\r\\n'
     """
     writer = csv.DictWriter(
         csvfile, fieldnames=["filename", "collection_reference", "accession_number"]
@@ -38,7 +38,7 @@ def generate_metadata_csv(csvfile, accession_id):
     writer.writeheader()
     writer.writerow(
         {
-            "filename": "/objects",
+            "filename": "objects/",
             "collection_reference": "WT",
             "accession_number": accession_id,
         }
@@ -90,7 +90,6 @@ def create_born_digital_zips(
     source_directory, target_directory, accession_number, shoot_number, max_batch_size
 ):
     filenames = files_in_folder(source_directory)
-
     if len(filenames) == 0:
         raise FileNotFoundError(
             "Attempt to build born digital accession zip from empty folder"
@@ -134,3 +133,7 @@ def batched(iterable, n):
     while batch := tuple(itertools.islice(iterator, n)):
         yield batch
 
+
+if __name__ == "__main__":
+    import sys
+    list(create_born_digital_zips(sys.argv[1], '.', "1234", sys.argv[2], 99))
