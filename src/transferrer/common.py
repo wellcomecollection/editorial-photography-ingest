@@ -1,16 +1,19 @@
 import os
 import boto3
+import botocore
 
 SOURCE_BUCKET = "wellcomecollection-editorial-photography"
 
 
-def get_source_bucket():
-    return get_source_client().Bucket(SOURCE_BUCKET)
+def get_source_bucket(max_connections=10):
+    return get_source_client(max_connections).Bucket(SOURCE_BUCKET)
 
 
-def get_source_client():
+def get_source_client(max_connections):
     session = boto3.Session()
-    return session.resource('s3')
+    return session.resource('s3', config=botocore.config.Config(
+        max_pool_connections=max_connections
+    ))
 
 
 def shoot_number_to_folder_path(shoot_number):
@@ -58,6 +61,11 @@ def discard_file(file):
     >>> discard_file("/path/to/HelloWorld.xml")
     True
 
+    Similarly, although in real data, the CSV file is always "shoot.csv", there are some test shoots
+    with a different name for this file, so all CSVs are discarded
+    >>> discard_file("/path/to/shoot - 1381-06-13 wat.csv")
+    True
+
     The intent is to retain *.tif files...
 
     >>> discard_file("/path/to/C0007851.tif")
@@ -71,4 +79,4 @@ def discard_file(file):
     False
 
     """
-    return os.path.basename(file) == "shoot.csv" or file[-4:] == ".xml"
+    return file[-4:] in (".csv", ".xml")
