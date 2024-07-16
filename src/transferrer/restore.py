@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 def restore_s3_folder(bucket, s3_folder: str, days_to_keep=1):

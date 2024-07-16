@@ -6,7 +6,7 @@ import boto3
 
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 # This variable governs the degree of parallelism to use when downloading files.
 # The correct number is to be discovered by experimentation

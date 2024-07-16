@@ -5,7 +5,7 @@ import sys
 
 import boto3
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 TARGET_BUCKET = os.getenv("TARGET_BUCKET", "wellcomecollection-archivematica-staging-transfer-source")
 
