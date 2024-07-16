@@ -1,4 +1,3 @@
-import logging
 import os
 import tempfile
 from transferrer.download import download_shoot
