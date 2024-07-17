@@ -1,6 +1,6 @@
 locals {
   lambda_name = "editorial-photography-transfer-${var.environment}"
-  lambda_timeout = 120 //two minutes
+  lambda_timeout = 300 //five minutes
   buckets = tomap(
     {
       staging = "wellcomecollection-archivematica-staging-transfer-source",
@@ -20,7 +20,7 @@ module "transfer_lambda" {
   handler = "lambda_function.lambda_handler"
 
   filename    = var.lambda_zip.output_path
-  memory_size = 512
+  memory_size = 2048
   timeout     = local.lambda_timeout
 
   environment = {
@@ -30,6 +30,9 @@ module "transfer_lambda" {
     }
   }
   source_code_hash = var.lambda_zip.output_base64sha256
+  ephemeral_storage  = {
+    size = 4096
+  }
 }
 
 resource "aws_iam_role_policy" "write_to_archivematica_transfer_source" {
