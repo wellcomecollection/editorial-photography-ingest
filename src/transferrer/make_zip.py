@@ -56,11 +56,11 @@ def create_born_digital_folder(source_files, target_directory, accession_id):
 
 def move_files_to_objects_folder(source_files, target_directory):
     """
-    Move the contents of source directory into the objects subfolder in the target directory
+    Move the contents of source directory into the target directory
     """
-    os.makedirs(os.path.join(target_directory, "objects"))
+    os.makedirs(target_directory, exist_ok=True)
     for file_abspath in source_files:
-        shutil.move(file_abspath, os.path.join(target_directory, "objects"))
+        shutil.move(file_abspath, target_directory)
 
 
 def files_in_folder(source_directory):
