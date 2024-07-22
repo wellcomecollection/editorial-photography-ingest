@@ -23,5 +23,4 @@ def check_folder_restore_status(bucket, s3_folder: str):
 
 if __name__ == "__main__":
     import sys
-    shoot_number = sys.argv[1]
     check_shoot_restore_status(get_source_bucket(boto3.Session()), sys.argv[1])
