@@ -40,7 +40,10 @@ shoots/clean:
 %.sliced: %
 	split -l 20 $< $<.
 
-# Touch the files already on AWS.  This will stimulate the corresponding transfer lambdas
+# Touch the files already on AWS.  This will stimulate the corresponding transfer lambdas.
+# The target system can sometimes be unexpectedly unavailable or overwhelmed,
+# resulting in failures.
+# This allows us to invoke the process from just before the failure
 # In order to run this, set your AWS profile to one with authority in the digitisation account.
 %.touched.staging: %
 	cat % | python src/touch.py staging
