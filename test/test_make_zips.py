@@ -50,13 +50,13 @@ def test_single_zip(fs):
     populate_source_dir_with_images(fs, "G00DCAFE", 2)
     next(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
     # it creates a zip named using the accession and shoot numbers
-    with zipfile.ZipFile("./1234_G00DCAFE.zip") as zip_file:
+    with zipfile.ZipFile("./out/1234_G00DCAFE.zip") as zip_file:
         zip_file.extractall("/unzipped")
         # with a metadata csv in the root of the zip
         assert_csv_has_accession_id("/unzipped/metadata/metadata.csv", "1234_G00DCAFE")
-        # and the photos in an ./objects folder
-        assert os.path.exists("/unzipped/objects/G00DCAFE_001.tif")
-        assert os.path.exists("/unzipped/objects/G00DCAFE_002.tif")
+        # and the photos in an . folder
+        assert os.path.exists("/unzipped/G00DCAFE_001.tif")
+        assert os.path.exists("/unzipped/G00DCAFE_002.tif")
 
 
 def test_multiple_zips(fs):
@@ -66,19 +66,19 @@ def test_multiple_zips(fs):
 
     list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
     # it creates zips named using the accession and shoot numbers, with a three-digit numeric suffix
-    with zipfile.ZipFile("./1234_G00DCAFE_001.zip") as zip_file:
+    with zipfile.ZipFile("./out/1234_G00DCAFE_001.zip") as zip_file:
         zip_file.extractall("/unzipped_001")
         assert_csv_has_accession_id("/unzipped_001/metadata/metadata.csv", "1234_G00DCAFE_001")
         # The objects chosen for each zip are predictable and consistent.
         # They are sorted alphanumerically before being sliced into groups to place into each zip
-        objects = os.listdir("/unzipped_001/objects")
+        objects = fnmatch.filter(os.listdir("/unzipped_001"), '*tif')
         assert len(objects) == 10
         assert set(filename[:3] for filename in objects) == {"AAA"}
 
-    with zipfile.ZipFile("./1234_G00DCAFE_002.zip") as zip_file:
+    with zipfile.ZipFile("./out/1234_G00DCAFE_002.zip") as zip_file:
         zip_file.extractall("/unzipped_002")
         assert_csv_has_accession_id("/unzipped_002/metadata/metadata.csv", "1234_G00DCAFE_002")
-        objects = os.listdir("/unzipped_002/objects")
+        objects = fnmatch.filter(os.listdir("/unzipped_002"), '*tif')
         assert len(objects) == 10
         assert set(filename[:3] for filename in objects) == {"BBB"}
 
@@ -99,13 +99,13 @@ def test_ignored_files_single_zip(fs):
     populate_source_dir_with_images(fs, "HELLO", 10)
     populate_source_dir(fs, ("shoot.csv", "HELLO.xml"))
     list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
-    assert fnmatch.filter(os.listdir("."), "*zip") == ["1234_G00DCAFE.zip"]
+    assert fnmatch.filter(os.listdir("./out/"), "*zip") == ["1234_G00DCAFE.zip"]
 
 
 def test_ignored_files_multiple_zips(fs):
     populate_source_dir_with_images(fs, "HELLO", 20)
     populate_source_dir(fs, ("shoot.csv", "HELLO.xml"))
     list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 5))
-    zips = fnmatch.filter(os.listdir("."), "*zip")
+    zips = fnmatch.filter(os.listdir("./out/"), "*zip")
     # 20/5 == 4, ceil 22/5 > 4
     assert len(zips) == 4
