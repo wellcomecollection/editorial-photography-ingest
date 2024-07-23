@@ -33,18 +33,13 @@ shoots/clean:
 
 # Slice a given input file into manageable chunks, so that you can run them through the
 # transfer process separately without overwhelming the target system.
-# The number here is based on the original input file containing 907 shoots,
-# so this creates 9 files of about 100.
-# The right number is yet to be discovered.
-# The right number is yet to be discovered.
-%.sliced: %
-	split -l 101 $< $<.
+# The right number for archivematica is probably about 20.
 
-# Touch the sho
-%.touched: %
-	cat % | xargs aws s3 cp \
-    --metadata 'touched=touched' \
-    --recursive --exclude="*" \
-    --include="$2" \
-    "${@:3}" \
-    "$1" "$1"
+%.sliced: %
+	split -l 20 $< $<.
+
+%.touched.staging: %
+	cat % | AWS_PROFILE=digitisation-developer python src/touch.py staging
+
+%.touched.production: %
+	cat % | AWS_PROFILE=digitisation-developer python src/touch.py production
