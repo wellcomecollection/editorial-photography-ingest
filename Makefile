@@ -9,8 +9,9 @@ shoots/clean:
 
 # Request the Glacier restoration of the shoots in the given file
 # The file is expected to contain one shoot identifier per line.
+# In order to run this, set your AWS profile to one with authority in the workflow account.
 %.restored : %
-	cat $< | AWS_PROFILE=workflow-developer python src/restore.py
+	cat $< | python src/restore.py
 	cp $< $@
 
 
@@ -19,16 +20,17 @@ shoots/clean:
 # (or even likely) if you run this rule without having previously requested the restoration
 # Any shoots that are not yet fully restored will result in a DLQ message that can eventually
 # be redriven when the s3 objects are finally available for download
+# In order to run this, set your AWS profile to one with authority in the digitisation account.
 
 # transfer to staging (see above)
 %.transferred.staging: %.restored
-	cat $< | AWS_PROFILE=digitisation-developer python src/start_transfers.py staging
+	cat $< | python src/start_transfers.py staging
 	cp $< $@
 
 
 # transfer to production (see above)
 %.transferred.production: %.restored
-	cat $< | AWS_PROFILE=digitisation-developer python src/start_transfers.py production
+	cat $< | python src/start_transfers.py production
 	cp $< $@
 
 # Slice a given input file into manageable chunks, so that you can run them through the
@@ -38,8 +40,10 @@ shoots/clean:
 %.sliced: %
 	split -l 20 $< $<.
 
+# Touch the files already on AWS.  This will stimulate the corresponding transfer lambdas
+# In order to run this, set your AWS profile to one with authority in the digitisation account.
 %.touched.staging: %
-	cat % | AWS_PROFILE=digitisation-developer python src/touch.py staging
+	cat % | python src/touch.py staging
 
 %.touched.production: %
-	cat % | AWS_PROFILE=digitisation-developer python src/touch.py production
+	cat % | python src/touch.py production
