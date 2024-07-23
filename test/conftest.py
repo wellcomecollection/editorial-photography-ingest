@@ -17,6 +17,18 @@ def moto_s3():
     finally:
         moto_fake.stop()
 
+
+@pytest.fixture
+def moto_session():
+    moto_fake = moto.mock_aws()
+    try:
+        moto_fake.start()
+        yield boto3
+    finally:
+        moto_fake.stop()
+
+
+
 @pytest.fixture
 def empty_bucket(moto_s3):
     @contextmanager
