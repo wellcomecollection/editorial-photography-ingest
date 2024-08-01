@@ -1,14 +1,13 @@
 """
 Like unix touch, this updates objects in s3 without substantive change.
 
-Call with a newline-separated list of keys, thus
-
-echo 'born-digital-accessions/2754_CP000179.zip \n born-digital-accessions/2754_CP000181.zip' | touch.py
-
 This is intended for use when Archivematica has ephemerally failed to accept some of the shoot zips.
 
-A fortnightly list of failed zips is published to Slack, but you could also generate it by looking elsewhere.
+A fortnightly list of failed zips is published to Slack (TBC) but you could also generate it by looking elsewhere, 
+eg. the storage-service's ingests dashboard in the reporting cluster
+
 """
+
 import sys
 
 import boto3
