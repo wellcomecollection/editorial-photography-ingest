@@ -7,9 +7,16 @@ shoots/clean:
 	rm shoots/*transferred
 	rm shoots/*slice*
 
+# Slice a given input file into manageable chunks, so that you can run them through the
+# transfer process separately without overwhelming the target system.
+# The right number for archivematica is probably about 20.
+
+%.sliced: %
+	split -l 20 $< $<.
+
 # Request the Glacier restoration of the shoots in the given file
 # The file is expected to contain one shoot identifier per line.
-# In order to run this, set your AWS profile to one with authority in the workflow account.
+# In order to run this, set your AWS profile to one with authority in the platform account.
 %.restored : %
 	cat $< | python src/restore.py
 	cp $< $@
@@ -33,14 +40,7 @@ shoots/clean:
 	cat $< | python src/start_transfers.py production
 	cp $< $@
 
-# Slice a given input file into manageable chunks, so that you can run them through the
-# transfer process separately without overwhelming the target system.
-# The right number for archivematica is probably about 20.
-
-%.sliced: %
-	split -l 20 $< $<.
-
-# Touch the files already on AWS.  This will stimulate the corresponding transfer lambdas.
+# Touch the files already in Archivematica source bucket. This will stimulate the corresponding transfer lambdas.
 # The target system can sometimes be unexpectedly unavailable or overwhelmed,
 # resulting in failures.
 # This allows us to invoke the process from just before the failure
@@ -49,4 +49,4 @@ shoots/clean:
 	cat % | python src/touch.py staging
 
 %.touched.production: %
-	cat % | python src/touch.py production
+	cat $< | python src/touch.py production
