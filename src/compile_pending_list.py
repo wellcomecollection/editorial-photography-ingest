@@ -3,33 +3,33 @@ import datetime
 from elasticsearch import Elasticsearch
 
 
-def get_failures_since(session, since_time):
+def get_successful_list(session, expected):
     es = get_es_client(session)
     response = es.search(
         index="storage_ingests",
-        size=100,
-        query=get_query(since_time),
+        size=1000,
+        query=get_query(expected),
         source=False,
         fields=["bag.info.externalIdentifier", "lastModifiedDate"]
     )
-    print("\n".join(get_zip_paths(response["hits"]["hits"])))
+    succeeded = get_identifiers(response["hits"]["hits"])
+    for shoot in expected:
+        print(f'{shoot}, {shoot in succeeded}')
 
 
-def get_zip_paths(hits):
-    return (f'born-digital-accessions/{hit["fields"]["bag.info.externalIdentifier"][0]}.zip' for hit in hits)
+def get_identifiers(hits):
+    return [hit["fields"]["bag.info.externalIdentifier"][0] for hit in hits]
 
 
-def get_query(since_time):
+def get_query(shoots):
     return {
         "bool": {
           "filter": [
             {"term": {
-              "status.id": "failed"
+              "status.id": "succeeded"
             }},
-            {"range": {
-              "lastModifiedDate": {
-                "gte": since_time
-              }
+            {"terms": {
+                  "bag.info.externalIdentifier": shoots
             }}
           ]
         }
@@ -38,7 +38,7 @@ def get_query(since_time):
 
 def main():
     import sys
-    get_failures_since(boto3.Session(), datetime.datetime.fromisoformat(sys.argv[1]))
+    get_successful_list(boto3.Session(), [f"2754_{shoot.strip()}" for shoot in sys.stdin.readlines()])
 
 
 def get_es_client(session):
