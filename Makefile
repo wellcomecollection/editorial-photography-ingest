@@ -58,4 +58,8 @@ shoots/clean:
 # compile a list of shoots that failed since a given time, thus:
 # make shoots/2024-08-06T15:33:00Z.failed
 shoots/%.failed: src/compile_failure_list.py
-	python src/compile_failure_list.py $* > shoots/$*.failed
+	python src/compile_failure_list.py $* > $@
+
+# Once the whole thing is done
+%.todo: %
+	cat $< | python src/compile_pending_list.py $* > $@
