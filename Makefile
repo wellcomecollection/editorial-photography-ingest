@@ -1,4 +1,4 @@
-.PHONY: shoots/clean %.sliced
+.PHONY: shoots/clean %.sliced shoots/%.failed
 .SECONDARY:
 
 # Remove intermediate/final files from the shoots folder
@@ -6,6 +6,7 @@ shoots/clean:
 	rm shoots/*restored
 	rm shoots/*transferred
 	rm shoots/*slice*
+	rm shoots/*failed*
 
 # Slice a given input file into manageable chunks, so that you can run them through the
 # transfer process separately without overwhelming the target system.
@@ -46,7 +47,19 @@ shoots/clean:
 # This allows us to invoke the process from just before the failure
 # In order to run this, set your AWS profile to one with authority in the digitisation account.
 %.touched.staging: %
-	cat % | python src/touch.py staging
+	cat $< | python src/touch.py staging
 
 %.touched.production: %
 	cat $< | python src/touch.py production
+
+# The target system has a habit of failing for ephemeral reasons.
+# Failures are logged, so a list can be generated from the logs
+# which can then be provided to .touched. above.
+# compile a list of shoots that failed since a given time, thus:
+# make shoots/2024-08-06T15:33:00Z.failed
+shoots/%.failed: src/compile_failure_list.py
+	python src/compile_failure_list.py $* > $@
+
+# Once the whole thing is done
+%.todo: %
+	cat $< | python src/compile_pending_list.py $* > $@
