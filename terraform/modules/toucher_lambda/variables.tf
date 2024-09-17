@@ -1,7 +1,3 @@
-variable "queue_visibility_timeout" {
-  type = number
-}
-
 variable "environment" {
   type = string
   validation {
@@ -10,6 +6,11 @@ variable "environment" {
   }
 }
 
-variable "action_name" {
-  type = string
+variable "lambda_zip" {
+  type = object(
+    {
+      output_path = string,
+      output_base64sha256 = string
+    }
+  )
 }

@@ -11,6 +11,7 @@ module "input_queue" {
   source = "../notification_queue"
   environment = var.environment
   queue_visibility_timeout = var.queue_visibility_timeout
+  action_name = "transfer-shoots"
 }
 
 module "trigger" {

@@ -21,6 +21,12 @@ data "archive_file" "lambda_zip" {
   source_dir = "../src"
 }
 
+data "archive_file" "toucher_zip" {
+  type        = "zip"
+  output_path = "toucher.zip"
+  source_file = "../src/touch.py"
+}
+
 module "staging_lambda" {
   source = "./modules/transferrer_pipe"
   environment = "staging"
@@ -43,11 +49,13 @@ module "production_lambda" {
   lambda_storage = 8192
   lambda_timeout = 600
 }
-#
-# module "restorer_lambda" {
-#   source = "./modules/restorer_lambda"
-#   lambda_zip = data.archive_file.lambda_zip
-#   providers = {
-#     aws: aws.platform
-#   }
-# }
+
+
+module "toucher_lambda" {
+  source = "./modules/toucher_lambda"
+  environment = "production"
+  lambda_zip = data.archive_file.toucher_zip
+    providers = {
+    aws: aws.digitisation
+  }
+}

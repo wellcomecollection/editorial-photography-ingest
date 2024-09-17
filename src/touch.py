@@ -9,9 +9,11 @@ eg. the storage-service's ingests dashboard in the reporting cluster
 """
 
 import sys
+import os
+import datetime
+import json
 
 import boto3
-import datetime
 
 BUCKETS = {
     "staging": "wellcomecollection-archivematica-staging-transfer-source",
@@ -35,6 +37,23 @@ def touch_object(session, bucket, key):
 def touch_objects(session, bucket,  object_keys):
     for object_key in object_keys:
         touch_object(session, bucket, object_key.strip())
+
+
+def lambda_main(event, context):
+    target_bucket = os.getenv("TARGET_BUCKET")
+    # 10 is the biggest number SQS can think of.
+    message_count = int(os.getenv("MESSAGES_PER_BATCH", 10))
+    source_queue = os.getenv("SOURCE_QUEUE")
+    sqs = boto3.client('sqs')
+    response = sqs.receive_message(
+        QueueUrl=source_queue,
+        MaxNumberOfMessages=message_count
+    )
+    messages = response.get('Messages', [])
+    keys = [json.loads(message['Body'])['Message'] for message in messages]
+    if not keys:
+        print(response)
+    touch_objects(boto3.Session(), target_bucket, keys)
 
 
 if __name__ == '__main__':
