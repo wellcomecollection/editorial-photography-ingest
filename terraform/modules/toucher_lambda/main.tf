@@ -70,7 +70,7 @@ resource "aws_iam_role_policy" "pull_from_touch_queue" {
 
 
 resource "aws_cloudwatch_event_rule" "schedule_rule" {
-  # On weekdays, Archivematica switches on in the morning and is ready by 0830
+  # On weekdays, Archivematica switches on in the morning and is ready by 0730 (UTC)
   # and switches off at 1900.
 
   # The shoots need to be fed to Archivematica slowly.
@@ -85,13 +85,13 @@ resource "aws_cloudwatch_event_rule" "schedule_rule" {
   # So it gets triggered six times a day in order to hit a total of up to 60 shoots.
   # If this works without problems, we might consider increasing the number of times it gets triggered.
 
-  # The first trigger is 08:30, in order to start as soon as possible in the day.
-  # The last trigger is at 17:30.  This is slightly more front-loaded than a purely even spread across the
+  # The first trigger is 07:30, in order to start as soon as possible in the day.
+  # The last trigger is at 16:30.  This is slightly more front-loaded than a purely even spread across the
   # period available.  This should give it time to catch up before switch-off if there are any delays.
 
   name                = "toucher_schedule"
-  description         = "Trigger the toucher Lambda at 08:30, then five further times across the working day"
-  schedule_expression = "cron(30 8,10,12,14,16,17 ? * MON-FRI *)"
+  description         = "Trigger the toucher Lambda at 07:30, then five further times across the working day"
+  schedule_expression = "cron(30 7,9,11,13,15,16, ? * MON-FRI *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
