@@ -23,14 +23,15 @@ BUCKETS = {
 
 def touch_object(session, bucket, key):
     print(f"touching: {bucket}/{key}")
-    session.client('s3').copy_object(
-        Bucket=bucket,
+    obj = session.resource('s3').Bucket(bucket).Object(key)
+    obj.copy(
         CopySource={'Bucket': bucket,  'Key': key},
-        Key=key,
-        Metadata={
-            'touched': datetime.datetime.now().isoformat()
-        },
-        MetadataDirective="REPLACE"
+        ExtraArgs={
+            'Metadata': {
+                'touched': datetime.datetime.now().isoformat()
+            },
+            "MetadataDirective": "REPLACE"
+        }
     )
 
 
