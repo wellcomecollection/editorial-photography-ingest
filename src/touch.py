@@ -12,8 +12,12 @@ import sys
 import os
 import datetime
 import json
-
+import logging
 import boto3
+
+
+logger = logging.getLogger(__name__)
+
 
 BUCKETS = {
     "staging": "wellcomecollection-archivematica-staging-transfer-source",
@@ -51,10 +55,15 @@ def lambda_main(event, context):
         MaxNumberOfMessages=message_count
     )
     messages = response.get('Messages', [])
-    keys = [json.loads(message['Body'])['Message'] for message in messages]
-    if not keys:
-        print(response)
-    touch_objects(boto3.Session(), target_bucket, keys)
+    session = boto3.Session()
+    for message in messages:
+        try:
+            key = json.loads(message['Body'])['Message']
+            handle = message['ReceiptHandle']
+            touch_object(session, target_bucket, key)
+            sqs.delete_message(QueueUrl=source_queue, ReceiptHandle=handle)
+        except Exception as err:
+            logger.exception(err)
 
 
 if __name__ == '__main__':
