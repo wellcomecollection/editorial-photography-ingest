@@ -2,7 +2,6 @@ import pytest
 import pyfakefs
 import boto3
 from transferrer.upload import upload
-from transferrer.upload import upload
 from moto import mock_aws
 
 @mock_aws
