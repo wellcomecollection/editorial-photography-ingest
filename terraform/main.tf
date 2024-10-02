@@ -26,6 +26,10 @@ module "staging_lambda" {
   environment = "staging"
   queue_visibility_timeout = local.queue_visibility_timeout
   lambda_zip = data.archive_file.lambda_zip
+  providers = {
+    aws: aws.digitisation
+  }
+
 }
 
 module "production_lambda" {
@@ -33,4 +37,17 @@ module "production_lambda" {
   environment = "production"
   queue_visibility_timeout = local.queue_visibility_timeout
   lambda_zip = data.archive_file.lambda_zip
+    providers = {
+    aws: aws.digitisation
+  }
+  lambda_storage = 8192
+  lambda_timeout = 600
 }
+#
+# module "restorer_lambda" {
+#   source = "./modules/restorer_lambda"
+#   lambda_zip = data.archive_file.lambda_zip
+#   providers = {
+#     aws: aws.platform
+#   }
+# }

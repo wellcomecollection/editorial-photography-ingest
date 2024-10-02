@@ -14,3 +14,11 @@ variable "lambda_zip" {
     }
   )
 }
+
+variable "lambda_storage" {
+  type = number
+}
+
+variable "lambda_timeout" {
+  type = number
+}

@@ -3,6 +3,8 @@ module "transfer_lambda" {
   source = "../transferrer_lambda"
   environment = var.environment
   lambda_zip = var.lambda_zip
+  lambda_storage = var.lambda_storage
+  lambda_timeout = var.lambda_timeout
 }
 
 module "input_queue" {

@@ -18,3 +18,14 @@ variable "lambda_zip" {
     }
   )
 }
+
+
+variable "lambda_storage" {
+  type = number
+  default = 4096
+}
+
+variable "lambda_timeout" {
+  type = number
+  default = 300 //five minutes
+}
