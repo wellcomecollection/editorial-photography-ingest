@@ -9,3 +9,7 @@ variable "environment" {
     error_message = "environment must be one of staging or production"
   }
 }
+
+variable "action_name" {
+  type = string
+}

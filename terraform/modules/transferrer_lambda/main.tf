@@ -1,6 +1,5 @@
 locals {
   lambda_name = "editorial-photography-transfer-${var.environment}"
-  lambda_timeout = 300 //five minutes
   buckets = tomap(
     {
       staging = "wellcomecollection-archivematica-staging-transfer-source",
@@ -14,14 +13,12 @@ locals {
 
 module "transfer_lambda" {
   source = "git@github.com:wellcomecollection/terraform-aws-lambda?ref=v1.2.0"
-
   name    = local.lambda_name
   runtime = "python3.12"
   handler = "lambda_function.lambda_handler"
-
   filename    = var.lambda_zip.output_path
   memory_size = 2048
-  timeout     = local.lambda_timeout
+  timeout     = var.lambda_timeout
 
   environment = {
     variables = {
@@ -30,8 +27,9 @@ module "transfer_lambda" {
     }
   }
   source_code_hash = var.lambda_zip.output_base64sha256
+
   ephemeral_storage  = {
-    size = 4096
+    size = var.lambda_storage
   }
 }
 
