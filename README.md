@@ -53,7 +53,6 @@ AWS_PROFILE=digitisation-developer make path_to/your_list_of_S3_keys_to_touch.to
 cat path_to/your_list_of_S3_keys_to_touch | AWS_PROFILE=digitisation-developer client/queue_touches.py
 ```
 
- 
 ## How
 See `Makefile` for more detail about each step 
 1. Restoration is asynchronous and can be triggered from a command line.

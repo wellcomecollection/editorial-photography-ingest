@@ -60,7 +60,7 @@ resource "aws_iam_role_policy" "pull_from_touch_queue" {
     Statement = [
       {
             "Effect": "Allow",
-            "Action": "sqs:ReceiveMessage"
+            "Action": ["sqs:ReceiveMessage","sqs:DeleteMessage"]
             "Resource": module.input_queue.queue_arn
         },
     ]
