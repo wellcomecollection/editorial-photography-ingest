@@ -1,4 +1,4 @@
-.PHONY: shoots/clean %.sliced shoots/%.failed shoots/%.todo
+.PHONY: shoots/clean %.sliced shoots/%.failed shoots/%.transfer_status
 .SECONDARY:
 
 # Remove intermediate/final files from the shoots folder
@@ -7,7 +7,7 @@ shoots/clean:
 	rm shoots/*transferred
 	rm shoots/*slice*
 	rm shoots/*failed*
-	rm shoots/*todo
+	rm shoots/*transfer_status
 
 # Slice a given input file into manageable chunks, so that you can run them through the
 # transfer process separately without overwhelming the target system.
@@ -62,17 +62,21 @@ shoots/%.failed: src/compile_failure_list.py
 	python src/check_results/compile_failure_list.py $* > $@
 
 # Once the whole thing is done, check that everything has actually gone through
-%.succeeded: %
+# This produces a CSV recording
+# True (successfully transferred) or False (not successfully transferred)
+# against each shoot
+%.transfer_status: %
 	cat $< | python src/check_results/compile_pending_list.py $* > $@
 
 # Compile lists for retrying:
 
 # Some things may have failed in the target system
 # These are s3 keys that can be passed through the 'touched' target
-%.succeeded.touchable: %.succeeded
+%.transfer_status.touchable: %.transfer_status
 	grep False $< | sed 's/,.*//' | python src/check_results/touchable.py production > $@
 
 # Others may have failed to transfer (or have been deleted from the target bucket due to expiry)
 # These are shoot identifiers that need to go back through the whole system again
-%.succeeded.needs_transfer: %.succeeded
+%.transfer_status.needs_transfer: %.transfer_status
 	grep False $< | sed 's/,.*//' | python src/check_results/untouchable.py production | sed 's/.*2754_//' | sed 's/\.zip//' > $@
+
