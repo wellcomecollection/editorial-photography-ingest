@@ -50,7 +50,7 @@ AWS_PROFILE=digitisation-developer make path_to/your_list_of_S3_keys_to_touch.to
 2. If there are many, or Archivematica is already busy with other things, then this is better managed by the toucher Lambda.
 
 ```
-cat path_to/your_list_of_S3_keys_to_touch | AWS_PROFILE=digitisation-developer client/queue_touches.py
+cat path_to/your_list_of_S3_keys_to_touch | AWS_PROFILE=digitisation-developer client/queue_touches.py production
 ```
 
 ## How
