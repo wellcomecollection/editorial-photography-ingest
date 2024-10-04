@@ -27,6 +27,32 @@ data "archive_file" "toucher_zip" {
   source_file = "../src/touch.py"
 }
 
+
+data "archive_file" "transfer_throttle_zip" {
+  type        = "zip"
+  output_path = "transfer_throttle.zip"
+  source_file = "../src/transfer_throttle.py"
+}
+
+
+module "restorer_lambda" {
+  source = "./modules/restorer_lambda"
+  lambda_zip = data.archive_file.lambda_zip
+  providers = {
+    aws: aws.platform
+  }
+}
+
+module "toucher_lambda" {
+  source = "./modules/toucher_lambda"
+  environment = "production"
+  lambda_zip = data.archive_file.toucher_zip
+    providers = {
+    aws: aws.digitisation
+  }
+}
+
+
 module "staging_lambda" {
   source = "./modules/transferrer_pipe"
   environment = "staging"
@@ -35,7 +61,6 @@ module "staging_lambda" {
   providers = {
     aws: aws.digitisation
   }
-
 }
 
 module "production_lambda" {
@@ -46,24 +71,17 @@ module "production_lambda" {
     providers = {
     aws: aws.digitisation
   }
-  lambda_storage = 8192
+  lambda_storage = 10240
   lambda_timeout = 600
+  extra_topics = [module.transfer_throttle.output_topic_arn]
 }
-#
-# module "restorer_lambda" {
-#   source = "./modules/restorer_lambda"
-#   lambda_zip = data.archive_file.lambda_zip
-#   providers = {
-#     aws: aws.platform
-#   }
-# }
 
-
-module "toucher_lambda" {
-  source = "./modules/toucher_lambda"
+module "transfer_throttle" {
+  source = "./modules/transfer_throttle"
   environment = "production"
-  lambda_zip = data.archive_file.toucher_zip
+  lambda_zip = data.archive_file.transfer_throttle_zip
     providers = {
     aws: aws.digitisation
   }
+  upstream_topic_arn = module.restorer_lambda.completion_topic_arn
 }

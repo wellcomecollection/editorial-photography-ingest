@@ -12,6 +12,7 @@ module "input_queue" {
   environment = var.environment
   queue_visibility_timeout = var.queue_visibility_timeout
   action_name = "transfer-shoots"
+  extra_topics = var.extra_topics
 }
 
 module "trigger" {
