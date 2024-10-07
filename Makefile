@@ -1,4 +1,4 @@
-.PHONY: shoots/clean %.sliced shoots/%.failed shoots/%.transfer_status
+.PHONY: shoots/clean %.sliced shoots/%.failed
 .SECONDARY:
 
 # Remove intermediate/final files from the shoots folder
