@@ -14,7 +14,7 @@ module "input_queue" {
 
   queue_name = "${var.action_name}-${var.environment}"
 
-  topic_arns                 = [module.notification_topic.arn]
+  topic_arns                 = concat(var.extra_topics, [module.notification_topic.arn])
   visibility_timeout_seconds = var.queue_visibility_timeout
   max_receive_count          = 1
   message_retention_seconds = 1209600

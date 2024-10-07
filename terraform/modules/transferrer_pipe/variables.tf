@@ -29,3 +29,8 @@ variable "lambda_timeout" {
   type = number
   default = 300 //five minutes
 }
+
+variable "extra_topics" {
+  type = list(string)
+  default = []
+}
