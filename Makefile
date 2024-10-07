@@ -14,13 +14,13 @@ shoots/clean:
 # The right number for archivematica is probably about 20.
 
 %.sliced: %
-	split -l 60 $< $<.
+	split -l 20 $< $<.
 
 # Request the Glacier restoration of the shoots in the given file
 # The file is expected to contain one shoot identifier per line.
 # In order to run this, set your AWS profile to one with authority in the platform account.
 %.restored : %
-#	cat $< | python src/restore.py
+	cat $< | python src/restore.py
 	cp $< $@
 
 
