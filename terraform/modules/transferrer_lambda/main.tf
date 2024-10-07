@@ -26,7 +26,7 @@ module "transfer_lambda" {
       TARGET_BUCKET = local.target_bucket
     }
   }
- #source_code_hash = var.lambda_zip.output_base64sha256
+  source_code_hash = var.lambda_zip.output_base64sha256
 
   ephemeral_storage  = {
     size = var.lambda_storage

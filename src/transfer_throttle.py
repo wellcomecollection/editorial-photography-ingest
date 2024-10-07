@@ -1,5 +1,18 @@
 """
 Pulls messages from the restored queue and notifies the transfer queue.
+
+Archivematica can only handle about 20 transfers at a time, and about 60 in a day.
+This Lambda is the throttle between the restorer restoring a whole day of material
+and the transferrer which will try to transfer records as fast as the queue provides them.
+
+This also allows the restoration to complete before attempting a transfer.
+
+The restorer lambda pulls a full day's batch of transfers from the restore queue in the evening
+and populates the queue_shoot_transfers with them.
+
+The following day, this throttle pulls those requested transfers off the queue at a manageable rate,
+and puts them on the "transfer-shoots" queue, which triggers the actual transfer.
+
 """
 import os
 import boto3
