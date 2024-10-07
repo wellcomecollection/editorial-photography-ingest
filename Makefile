@@ -59,24 +59,24 @@ shoots/clean:
 # compile a list of shoots that failed since a given time, thus:
 # make shoots/2024-08-06T15:33:00Z.failed
 shoots/%.failed: src/compile_failure_list.py
-	python src/check_results/compile_failure_list.py $* > $@
+	python client/compile_failure_list.py $* > $@
 
 # Once the whole thing is done, check that everything has actually gone through
 # This produces a CSV recording
 # True (successfully transferred) or False (not successfully transferred)
 # against each shoot
 %.transfer_status: %
-	cat $< | python src/check_results/compile_pending_list.py $* > $@
+	cat $< | python client/compile_pending_list.py $* > $@
 
 # Compile lists for retrying:
 
 # Some things may have failed in the target system
 # These are s3 keys that can be passed through the 'touched' target
 %.transfer_status.touchable: %.transfer_status
-	grep False $< | sed 's/,.*//' | python src/check_results/touchable.py production > $@
+	grep False $< | sed 's/,.*//' | python client/touchable.py production > $@
 
 # Others may have failed to transfer (or have been deleted from the target bucket due to expiry)
 # These are shoot identifiers that need to go back through the whole system again
 %.transfer_status.needs_transfer: %.transfer_status
-	grep False $< | sed 's/,.*//' | python src/check_results/untouchable.py production | sed 's/.*2754_//' | sed 's/\.zip//' > $@
+	grep False $< | sed 's/,.*//' | python client/untouchable.py production | sed 's/.*2754_//' | sed 's/\.zip//' > $@
 
