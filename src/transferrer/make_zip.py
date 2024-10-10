@@ -3,6 +3,7 @@ Create zips from editorial photography folders for uploading to born-digital-acc
 """
 
 import csv
+import math
 import shutil
 import os
 import itertools
@@ -103,4 +104,4 @@ def batched(iterable, n):
 
 if __name__ == "__main__":
     import sys
-    list(create_born_digital_zips(sys.argv[1], '.', "1234", sys.argv[2], 99))
+    make_zip_from(os.listdir(sys.argv[1]), sys.argv[1], '.', f"1234_{sys.argv[2]}", math.inf)
