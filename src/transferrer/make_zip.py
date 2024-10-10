@@ -7,8 +7,6 @@ import shutil
 import os
 import itertools
 
-from transferrer.common import discard_file
-
 
 def shoot_number_to_accession_id(accession_number, shoot_number):
     """
@@ -63,17 +61,6 @@ def move_files_to_objects_folder(source_files, target_directory):
         shutil.move(file_abspath, target_directory)
 
 
-def files_in_folder(source_directory):
-    """
-    Return a list of relevant files in the given directory.
-    """
-    return [
-        filename
-        for filename in os.listdir(source_directory)
-        if not discard_file(filename)
-    ]
-
-
 def full_paths(source_directory, filenames):
     """
     Prepends source_directory onto each filename in filenames
@@ -85,33 +72,13 @@ def full_paths(source_directory, filenames):
     return (os.path.join(source_directory, filename) for filename in filenames)
 
 
-def create_born_digital_zips(
-    source_directory, target_directory, accession_number, shoot_number, max_batch_size
-):
-    filenames = files_in_folder(source_directory)
-    if len(filenames) == 0:
-        raise FileNotFoundError(
-            "Attempt to build born digital accession zip from empty folder"
-        )
-
-    if len(filenames) > max_batch_size:
-        # In order to produce predictable/repeatable zips, the filename list is sorted before batching.
-        # This is only necessary when an input directory results in multiple zips
-        batches = batched(sorted(filenames), max_batch_size)
-        for ix, batch in enumerate(batches, 1):
-            accession_id = f"{shoot_number_to_accession_id(accession_number, shoot_number)}_{ix:03d}"
-            yield create_born_digital_zip(
-                full_paths(source_directory, batch),
-                target_directory,
-                accession_id,
-            )
-    else:
-        accession_id = shoot_number_to_accession_id(accession_number, shoot_number)
-        yield create_born_digital_zip(
-            full_paths(source_directory, filenames),
-            target_directory,
-            accession_id,
-        )
+def make_zip_from(files, source_folder, target_folder, accession_id, suffix):
+    os.makedirs(target_folder, exist_ok=True)
+    return create_born_digital_zip(
+        full_paths(source_folder, files),
+        target_folder,
+        accession_id + suffix,
+    )
 
 
 def create_born_digital_zip(source_files, target_directory: str, accession_id: str):
