@@ -1,8 +1,10 @@
 import os.path
 from contextlib import contextmanager
+import random
 import moto
 import boto3
 import pytest
+import io
 
 from transferrer.common import get_source_bucket
 
@@ -54,6 +56,15 @@ def glacier_shoot_bucket(empty_bucket):
 @pytest.fixture
 def target_bucket(empty_bucket):
     with empty_bucket("wellcomecollection-archivematica-staging-transfer-source") as bucket:
+        yield bucket
+
+
+@pytest.fixture
+def huge_shoot_bucket(empty_bucket):
+    bucket_name = "wellcomecollection-editorial-photography"
+    with empty_bucket(bucket_name) as bucket:
+        for ix in range(5):
+            bucket.upload_fileobj(io.BytesIO(random.randbytes(10000)), f"ST/PI_TEST/PI_TEST_{ix:03d}.tif")
         yield bucket
 
 
