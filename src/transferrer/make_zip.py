@@ -9,26 +9,12 @@ import os
 import itertools
 
 
-def shoot_number_to_accession_id(accession_number, shoot_number):
-    """
-    The accession id is simply the shoot_number prefixed with the accession number
-    >>> shoot_number_to_accession_id("2754", "CP000159")
-    '2754_CP000159'
-    """
-    if accession_number and shoot_number:
-        return accession_number + "_" + shoot_number
-    else:
-        raise ValueError(
-            f"misssing accession or shoot number - accession: '{accession_number}' shoot: '{shoot_number}'"
-        )
-
-
 def generate_metadata_csv(csvfile, accession_id):
     """
     The metadata csv consists of a header and a single row
     The accession id is placed in the final cell
     >>> import io
-    >>> generate_metadata_csv(io.StringIO(), shoot_number_to_accession_id("2754", "CP000159")).getvalue()
+    >>> generate_metadata_csv(io.StringIO(), "2754_CP000159").getvalue()
     'filename,collection_reference,accession_number\\r\\nobjects/,WT,2754_CP000159\\r\\n'
     """
     writer = csv.DictWriter(

@@ -6,7 +6,7 @@ from functools import partial
 import boto3
 
 from transferrer.common import should_download_file, shoot_number_to_folder_path, get_source_bucket
-from batching import batch_by_total
+from transferrer.batching import batch_by_total
 
 logger = logging.getLogger(__name__)
 

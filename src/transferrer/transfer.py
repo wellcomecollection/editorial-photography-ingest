@@ -5,11 +5,23 @@ from transferrer.make_zip import make_zip_from
 from transferrer.upload import upload
 import boto3
 
-from common import shoot_number_to_folder_path
-from make_zip import shoot_number_to_accession_id
-
 
 MAX_SPACE_BYTES = 10240000000  # maximum setting for  Lambda Ephemeral Storage
+
+
+
+def shoot_number_to_accession_id(accession_number, shoot_number):
+    """
+    The accession id is simply the shoot_number prefixed with the accession number
+    >>> shoot_number_to_accession_id("2754", "CP000159")
+    '2754_CP000159'
+    """
+    if accession_number and shoot_number:
+        return accession_number + "_" + shoot_number
+    else:
+        raise ValueError(
+            f"misssing accession or shoot number - accession: '{accession_number}' shoot: '{shoot_number}'"
+        )
 
 
 def transfer_shoot(from_session, to_session, shoot_number, accession_number, max_batch_bytes=MAX_SPACE_BYTES / 2):
