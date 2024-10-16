@@ -72,11 +72,7 @@ def download_s3_folder(bucket, s3_folder: str, local_dir: str, max_batch_bytes: 
                 partial(download_s3_file, local_dir=local_dir, s3_folder=s3_folder),
                 batch
             ))
-            # for key in executor.map(
-            #     partial(download_s3_file, local_dir=local_dir, s3_folder=s3_folder),
-            #     batch
-            # ):
-            #     logger.info(f"downloaded\t{key}")
+
         yield files, suffix
 
 
