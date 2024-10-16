@@ -6,13 +6,14 @@ from transferrer.upload import upload
 import boto3
 
 
-MAX_SPACE_BYTES = 10240000000  # maximum setting for  Lambda Ephemeral Storage
+MAX_SPACE_BYTES = os.getenv('MAX_SPACE_BYTES', 10240000000)  # maximum setting for  Lambda Ephemeral Storage
 
 
 
 def shoot_number_to_accession_id(accession_number, shoot_number):
     """
-    The accession id is simply the shoot_number prefixed with the accession number
+    The accession id is simply the shoot_number prefixed with the accession number.
+
     >>> shoot_number_to_accession_id("2754", "CP000159")
     '2754_CP000159'
     """
