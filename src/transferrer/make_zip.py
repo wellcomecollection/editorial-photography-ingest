@@ -41,7 +41,7 @@ def create_born_digital_folder(source_files, target_directory, accession_id):
 
 def move_files_to_objects_folder(source_files, target_directory):
     """
-    Move the contents of source directory into the target directory
+    Move the contents of source directory into the target directory.
     """
     os.makedirs(target_directory, exist_ok=True)
     for file_abspath in source_files:
@@ -50,7 +50,7 @@ def move_files_to_objects_folder(source_files, target_directory):
 
 def full_paths(source_directory, filenames):
     """
-    Prepends source_directory onto each filename in filenames
+    Prepends source_directory onto each filename in filenames.
 
     >>> list(full_paths("/path/to", ["file1.erl", "file2.erl"]))
     ['/path/to/file1.erl', '/path/to/file2.erl']

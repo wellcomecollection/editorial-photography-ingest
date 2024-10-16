@@ -34,8 +34,9 @@ def batch_by_total(entries, maximum, key):
         else:
             return entry, running_total + value, group
 
-    # just in case entries is a list, create a new iterator for it.
+    # Just in case entries is a list, create a new iterator for it.
     iter_entries = iter(entries)
+
     # Because we are using key to derive the value, we need to initialise the accumulator with the first value
     # otherwise it will just use the first entry on its own.
     first = next(iter_entries)
