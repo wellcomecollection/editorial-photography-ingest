@@ -19,15 +19,14 @@ module "transfer_lambda" {
   filename    = var.lambda_zip.output_path
   memory_size = 2048
   timeout     = var.lambda_timeout
-
   environment = {
     variables = {
       ACCESSION_NUMBER = "2754"
       TARGET_BUCKET = local.target_bucket
     }
   }
+  package_type = "Zip"
   source_code_hash = var.lambda_zip.output_base64sha256
-
   ephemeral_storage  = {
     size = var.lambda_storage
   }

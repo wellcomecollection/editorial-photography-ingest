@@ -4,7 +4,7 @@ provider "aws" {
   alias  = "digitisation"
   allowed_account_ids = ["404315009621"]
   assume_role {
-    role_arn = "arn:aws:iam::404315009621:role/digitisation-admin"
+    role_arn = "arn:aws:iam::404315009621:role/digitisation-developer"
   }
 }
 

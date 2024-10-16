@@ -25,7 +25,6 @@ module "restore_lambda" {
   filename    = var.lambda_zip.output_path
   timeout     = local.lambda_timeout
   package_type = "Zip"
-  publish = true
 
   source_code_hash = var.lambda_zip.output_base64sha256
   environment = {
