@@ -72,7 +72,6 @@ def download_s3_folder(bucket, s3_folder: str, local_dir: str, max_batch_bytes: 
                 partial(download_s3_file, local_dir=local_dir, s3_folder=s3_folder),
                 batch
             ))
-
         yield files, suffix
 
 
