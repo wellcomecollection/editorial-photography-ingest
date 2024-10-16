@@ -1,6 +1,6 @@
 locals {
   event_batching_window_timeout = 20
-  lambda_timeout = 120 //two minutes
+  lambda_timeout = 600 //five minutes
 
   # The lambda event source pulls messages from SQS in batches, finally triggering the lambda
   # when either it has enough messages, or enough time has elapsed.
@@ -15,9 +15,9 @@ locals {
   queue_visibility_timeout = local.event_batching_window_timeout + local.lambda_timeout + 20
 }
 
-data "archive_file" "lambda_zip" {
+data "archive_file" "transferrer_zip" {
   type        = "zip"
-  output_path = "lambda.zip"
+  output_path = "transferrer.zip"
   source_dir = "../src"
 }
 
@@ -37,7 +37,7 @@ data "archive_file" "transfer_throttle_zip" {
 
 module "restorer_lambda" {
   source = "./modules/restorer_lambda"
-  lambda_zip = data.archive_file.lambda_zip
+  lambda_zip = data.archive_file.transferrer_zip
   providers = {
     aws: aws.platform
   }
@@ -57,7 +57,7 @@ module "staging_lambda" {
   source = "./modules/transferrer_pipe"
   environment = "staging"
   queue_visibility_timeout = local.queue_visibility_timeout
-  lambda_zip = data.archive_file.lambda_zip
+  lambda_zip = data.archive_file.transferrer_zip
   providers = {
     aws: aws.digitisation
   }
@@ -67,12 +67,12 @@ module "production_lambda" {
   source = "./modules/transferrer_pipe"
   environment = "production"
   queue_visibility_timeout = local.queue_visibility_timeout
-  lambda_zip = data.archive_file.lambda_zip
+  lambda_zip = data.archive_file.transferrer_zip
     providers = {
     aws: aws.digitisation
   }
   lambda_storage = 10240
-  lambda_timeout = 600
+  lambda_timeout = local.lambda_timeout
   extra_topics = [module.transfer_throttle.output_topic_arn]
 }
 
