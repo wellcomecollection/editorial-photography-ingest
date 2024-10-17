@@ -1,7 +1,7 @@
 locals {
   lambda_name = "editorial-photography-transfer-restorer"
-  lambda_timeout = 60
-  input_queue_visibility_timeout = 120
+  lambda_timeout = 600
+  input_queue_visibility_timeout = 1200
   environment = "production"
   digitisation_account = "404315009621"
 }
@@ -24,6 +24,7 @@ module "restore_lambda" {
 
   filename    = var.lambda_zip.output_path
   timeout     = local.lambda_timeout
+  package_type = "Zip"
 
   source_code_hash = var.lambda_zip.output_base64sha256
   environment = {

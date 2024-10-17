@@ -3,8 +3,9 @@ import os
 import zipfile
 import csv
 import pytest
+import glob
 
-from transferrer.make_zip import create_born_digital_zips
+from transferrer.make_zip import make_zip_from
 
 
 def populate_source_dir_with_images(fs, name, count):
@@ -33,22 +34,23 @@ def assert_csv_has_accession_id(csv_path, accession_id):
 
 
 def test_missing_folder(fs):
+    """Trying to create an zip with files that do not exist will raise an exception"""
     with pytest.raises(FileNotFoundError):
-        list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
+        make_zip_from(["one.tif", "two.tif"], "/not_here", "/out", "1234_G00DCAFE", "")
     assert fnmatch.filter(os.listdir("."), "*zip") == []
 
 
 def test_empty_folder(fs):
+    """Trying to create an empty zip will not work"""
     fs.create_dir("/in")
-    with pytest.raises(FileNotFoundError):
-        list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
+    make_zip_from([], "/in", "/out", "1234_G00DCAFE", "")
     assert fnmatch.filter(os.listdir("."), "*zip") == []
 
 
 def test_single_zip(fs):
     # When a shoot results in a single zip,
     populate_source_dir_with_images(fs, "G00DCAFE", 2)
-    next(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
+    make_zip_from(os.listdir("/in"), "/in", "./out", "1234_G00DCAFE", "")
     # it creates a zip named using the accession and shoot numbers
     with zipfile.ZipFile("./out/1234_G00DCAFE.zip") as zip_file:
         zip_file.extractall("/unzipped")
@@ -58,54 +60,4 @@ def test_single_zip(fs):
         assert os.path.exists("/unzipped/G00DCAFE_001.tif")
         assert os.path.exists("/unzipped/G00DCAFE_002.tif")
 
-
-def test_multiple_zips(fs):
-    # When a shoot results in multiple zips,
-    populate_source_dir_with_images(fs, "BBB", 10)
-    populate_source_dir_with_images(fs, "AAA", 10)
-
-    list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
-    # it creates zips named using the accession and shoot numbers, with a three-digit numeric suffix
-    with zipfile.ZipFile("./out/1234_G00DCAFE_001.zip") as zip_file:
-        zip_file.extractall("/unzipped_001")
-        assert_csv_has_accession_id("/unzipped_001/metadata/metadata.csv", "1234_G00DCAFE_001")
-        # The objects chosen for each zip are predictable and consistent.
-        # They are sorted alphanumerically before being sliced into groups to place into each zip
-        objects = fnmatch.filter(os.listdir("/unzipped_001"), '*tif')
-        assert len(objects) == 10
-        assert set(filename[:3] for filename in objects) == {"AAA"}
-
-    with zipfile.ZipFile("./out/1234_G00DCAFE_002.zip") as zip_file:
-        zip_file.extractall("/unzipped_002")
-        assert_csv_has_accession_id("/unzipped_002/metadata/metadata.csv", "1234_G00DCAFE_002")
-        objects = fnmatch.filter(os.listdir("/unzipped_002"), '*tif')
-        assert len(objects) == 10
-        assert set(filename[:3] for filename in objects) == {"BBB"}
-
-
-# The metadata files (shoot.csv, *.xml) present in the original shoot are to be ignored
-# They are not expected to be restored/downloaded, but if they are present, then they
-# will not be included in the zips.
-# The application behaves    entirely as though they are not there
-def test_ignored_files_empty_folder(fs):
-    populate_source_dir(fs, ("shoot.csv", "HELLO.xml"))
-    fs.create_dir("/in")
-    with pytest.raises(FileNotFoundError):
-        list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
-    assert fnmatch.filter(os.listdir("."), "*zip") == []
-
-
-def test_ignored_files_single_zip(fs):
-    populate_source_dir_with_images(fs, "HELLO", 10)
-    populate_source_dir(fs, ("shoot.csv", "HELLO.xml"))
-    list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 10))
-    assert fnmatch.filter(os.listdir("./out/"), "*zip") == ["1234_G00DCAFE.zip"]
-
-
-def test_ignored_files_multiple_zips(fs):
-    populate_source_dir_with_images(fs, "HELLO", 20)
-    populate_source_dir(fs, ("shoot.csv", "HELLO.xml"))
-    list(create_born_digital_zips("/in", "/out", "1234", "G00DCAFE", 5))
-    zips = fnmatch.filter(os.listdir("./out/"), "*zip")
-    # 20/5 == 4, ceil 22/5 > 4
-    assert len(zips) == 4
+#
