@@ -91,7 +91,7 @@ resource "aws_cloudwatch_event_rule" "schedule_rule" {
 
   name                = "toucher_schedule"
   description         = "Trigger the toucher Lambda at 07:30, then five further times across the working day"
-  schedule_expression = "cron(30 7,9,11,13,15,16, ? * MON-FRI *)"
+  schedule_expression = "cron(30 7,9,11,13,15,16 ? * MON-FRI *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {

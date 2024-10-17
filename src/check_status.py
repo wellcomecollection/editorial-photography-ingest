@@ -12,7 +12,7 @@ def check_shoot_restore_status(bucket, shoot_number):
 def check_folder_restore_status(bucket, s3_folder: str):
     logger.info(s3_folder)
     for obj in bucket.objects.filter(Prefix=s3_folder,  OptionalObjectAttributes=[
-        'RestoreStatus',
+        'RestoreStatus'
     ]):
         if should_download_file(obj.key):
             status = obj.restore_status

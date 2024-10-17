@@ -13,3 +13,9 @@ variable "environment" {
 variable "action_name" {
   type = string
 }
+
+variable "extra_topics" {
+  type = list(string)
+  default = []
+  description = "List of topics defined elsewhere that the queue should subscribe to"
+}
