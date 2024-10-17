@@ -1,6 +1,6 @@
 locals {
   event_batching_window_timeout = 20
-  lambda_timeout = 120 //two minutes
+  lambda_timeout = 600 //five minutes
 
   # The lambda event source pulls messages from SQS in batches, finally triggering the lambda
   # when either it has enough messages, or enough time has elapsed.
