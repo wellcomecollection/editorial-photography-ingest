@@ -2,21 +2,34 @@ import os
 import tempfile
 from transferrer.download import download_shoot
 from transferrer.make_zip import make_zip_from
+<<<<<<< HEAD
 from transferrer.upload import upload, get_target_bucket
+=======
+from transferrer.upload import upload
+>>>>>>> improve-report
 import boto3
 import re
 
 
+<<<<<<< HEAD
 re_extract_suffix = re.compile('(_\\d\\d\\d)\\.zip')
 
 MAX_SPACE_BYTES = os.getenv('MAX_SPACE_BYTES', 10240000000)  # maximum setting for  Lambda Ephemeral Storage
 TARGET_BUCKET = os.getenv("TARGET_BUCKET")
+=======
+MAX_SPACE_BYTES = 10240000000  # maximum setting for  Lambda Ephemeral Storage
+
+>>>>>>> improve-report
 
 
 def shoot_number_to_accession_id(accession_number, shoot_number):
     """
+<<<<<<< HEAD
     The accession id is simply the shoot_number prefixed with the accession number.
 
+=======
+    The accession id is simply the shoot_number prefixed with the accession number
+>>>>>>> improve-report
     >>> shoot_number_to_accession_id("2754", "CP000159")
     '2754_CP000159'
     """
@@ -37,9 +50,13 @@ def transfer_shoot(from_session, to_session, shoot_number, accession_number, max
     tmpfolder = root_dir.name
     source_folder = os.path.join(tmpfolder, "source")
     target_folder = os.path.join(tmpfolder, "target")
+<<<<<<< HEAD
     already_up = [match.group(1) for match in (re_extract_suffix.search(o.key) for o in get_target_bucket(to_session, TARGET_BUCKET).filter(Prefix=f"born-digital-accessions/{accession_id}")) if match]
 
     for files, suffix in download_shoot(from_session, shoot_number, source_folder, max_batch_bytes, ignore=already_up):
+=======
+    for files, suffix in download_shoot(from_session, shoot_number, source_folder, max_batch_bytes):
+>>>>>>> improve-report
         upload(
             to_session,
             make_zip_from(files, source_folder, target_folder, accession_id, suffix)

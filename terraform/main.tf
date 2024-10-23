@@ -45,8 +45,9 @@ module "restorer_lambda" {
 
 module "toucher_lambda" {
   source = "./modules/toucher_lambda"
+
   environment = "production"
-  lambda_zip = data.archive_file.toucher_zip
+  lambda_zip = data.archive_file.transfer_throttle_zip
     providers = {
     aws: aws.digitisation
   }

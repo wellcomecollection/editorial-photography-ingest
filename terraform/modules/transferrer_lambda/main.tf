@@ -48,6 +48,22 @@ resource "aws_iam_role_policy" "write_to_archivematica_transfer_source" {
   )
 }
 
+resource "aws_iam_role_policy" "list_archivematica_transfer_source" {
+  role = module.transfer_lambda.lambda_role.name
+  name = "list_archivematica_transfer_source-${var.environment}"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+            "Effect": "Allow",
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::${local.target_bucket}"
+        },
+    ]
+  }
+  )
+}
+
 resource "aws_iam_role_policy" "read_from_editorial_photography" {
   role = module.transfer_lambda.lambda_role.name
   name = "read_from_editorial_photography-${var.environment}"

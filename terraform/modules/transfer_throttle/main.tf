@@ -41,7 +41,11 @@ module "transfer_throttle_lambda" {
 module "transfer_scheduler" {
   source = "../lambda_scheduler"
   cron                 = "cron(30 7,9,11,13,15,16 ? * MON-FRI *)"
+<<<<<<< HEAD
   description          = "Moves batches of shoots to the transferer at a rate Archivematica can handle"
+=======
+  description          = "Restore a batch of shoots in the evening so they are ready to be transferred in the morning"
+>>>>>>> improve-report
   lambda_arn           = module.transfer_throttle_lambda.lambda.arn
   lambda_function_name = module.transfer_throttle_lambda.lambda.function_name
   name                 = "transfer_throttle"

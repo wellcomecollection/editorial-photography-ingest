@@ -41,11 +41,12 @@ def list_folder_objects(bucket, s3_folder):
     return (obj for obj in bucket.objects.filter(Prefix=s3_folder) if should_download_file(obj.key))
 
 
+<<<<<<< HEAD
 def download_shoot(session: boto3.session.Session, shoot_number, local_dir, max_batch_bytes, ignore_suffixes):
     # Allowing enough connections for each thread to have two of them
     # prevents the `urllib3.connectionpool:Connection pool is full` warning
     # and allows for better connection reuse.
-    return download_shoot_folder(get_source_bucket(session, max_connections=THREADS * 5), shoot_number, local_dir, max_batch_bytes, ignore)
+    return download_shoot_folder(get_source_bucket(session, max_connections=THREADS * 5), shoot_number, local_dir, max_batch_bytes, ignore_suffixes)
 
 
 def download_shoot_folder(bucket, shoot_number, local_dir, max_batch_bytes, ignore_suffixes):
@@ -67,6 +68,7 @@ def download_s3_folder(bucket, s3_folder: str, local_dir: str, max_batch_bytes: 
         os.makedirs(local_dir, exist_ok=True)
         if use_suffix:
             suffix = f"_{ix:03d}"
+<<<<<<< HEAD
         if suffix in ignore_suffixes:
             logger.info(f"{suffix} already on target, ignoring")
         else:
@@ -76,6 +78,19 @@ def download_s3_folder(bucket, s3_folder: str, local_dir: str, max_batch_bytes: 
                     batch
                 ))
             yield files, suffix
+=======
+        with ThreadPoolExecutor(max_workers=THREADS) as executor:
+            files = list(executor.map(
+                partial(download_s3_file, local_dir=local_dir, s3_folder=s3_folder),
+                batch
+            ))
+            # for key in executor.map(
+            #     partial(download_s3_file, local_dir=local_dir, s3_folder=s3_folder),
+            #     batch
+            # ):
+            #     logger.info(f"downloaded\t{key}")
+        yield files, suffix
+>>>>>>> improve-report
 
 
 def download_s3_file(object_summary, *, local_dir: str, s3_folder: str):
