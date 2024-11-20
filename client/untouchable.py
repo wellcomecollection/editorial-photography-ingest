@@ -1,3 +1,11 @@
+"""
+Given a list of shoot numbers, return any of them that have not been transferred
+
+This script assumes that the presence of any part of the shoot on the target system
+implies that it has been transferred. i.e. that if a shoot is a large one that needs to be
+broken apart, then it does not check whether all parts have been successfully transferred.
+"""
+
 import boto3
 import sys
 
