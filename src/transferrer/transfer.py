@@ -35,7 +35,7 @@ def transfer_shoot(from_session, to_session, shoot_number, accession_number, max
     source_folder = os.path.join(tmpfolder, "source")
     target_folder = os.path.join(tmpfolder, "target")
     already_up = [match.group(1) for match in (re_extract_suffix.search(o.key) for o in get_target_bucket(to_session, TARGET_BUCKET).filter(Prefix=f"born-digital-accessions/{accession_id}")) if match]
-    for files, suffix in download_shoot(from_session, shoot_number, source_folder, max_batch_bytes, ignore=already_up):
+    for files, suffix in download_shoot(from_session, shoot_number, source_folder, max_batch_bytes, ignore_suffixes=already_up):
         upload(
             to_session,
             make_zip_from(files, source_folder, target_folder, accession_id, suffix)
