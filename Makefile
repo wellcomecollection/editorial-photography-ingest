@@ -66,17 +66,22 @@ shoots/%.failed: src/compile_failure_list.py
 # True (successfully transferred) or False (not successfully transferred)
 # against each shoot
 %.transfer_status: %
-	cat $< | python client/compile_pending_list.py $* > $@
+	cat $< | AWS_PROFILE=${SOURCE_PROFILE} python client/compile_pending_list.py $* > $@
 
 # Compile lists for retrying:
 
 # Some things may have failed in the target system
 # These are s3 keys that can be passed through the 'touched' target
-%.transfer_status.touchable: %.transfer_status
-	grep False $< | sed 's/,.*//' | python client/touchable.py production > $@
+%.touchable: %
+	grep False $< | sed 's/,.*//' | AWS_PROFILE=${TARGET_PROFILE} python client/touchable.py production > $@
 
 # Others may have failed to transfer (or have been deleted from the target bucket due to expiry)
 # These are shoot identifiers that need to go back through the whole system again
-%.transfer_status.needs_transfer: %.transfer_status
-	grep False $< | sed 's/,.*//' | python client/untouchable.py production | sed 's/.*2754_//' | sed 's/\.zip//' > $@
+%.needs_transfer: %
+	grep False $< | sed 's/,.*//' | AWS_PROFILE=${TARGET_PROFILE} python client/untouchable.py production | sed 's/.*2754_//' | sed 's/\.zip//' > $@
 
+%.queued_for_touch.production: %.transfer_status.touchable
+	cat $< | AWS_PROFILE=${TARGET_PROFILE} python client/queue_touches.py production
+
+%.queued_for_transfer.production: %.transfer_status.needs_transfer
+	cat $< | AWS_PROFILE=${SOURCE_PROFILE} python client/start_restores.py production

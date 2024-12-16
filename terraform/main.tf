@@ -45,6 +45,7 @@ module "restorer_lambda" {
 
 module "toucher_lambda" {
   source = "./modules/toucher_lambda"
+
   environment = "production"
   lambda_zip = data.archive_file.toucher_zip
     providers = {
