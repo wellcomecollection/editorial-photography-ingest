@@ -11,8 +11,8 @@ from transferrer.batching import batch_by_total
 logger = logging.getLogger(__name__)
 
 # This variable governs the degree of parallelism to use when downloading files.
-# The correct number is to be discovered by experimentation
-THREADS = 20
+# Previously set to 20, but caused urllib3.connectionpool:Connection pool is full errors
+THREADS = 10
 
 
 def get_shoot_batches(bucket, s3_folder, max_batch_bytes):
