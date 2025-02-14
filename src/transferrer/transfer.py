@@ -9,7 +9,7 @@ import re
 re_extract_suffix = re.compile('(_\\d\\d\\d)\\.zip')
 
 MAX_SPACE_BYTES = os.getenv('MAX_SPACE_BYTES', 10240000000)  # maximum setting for  Lambda Ephemeral Storage
-TARGET_BUCKET = os.getenv("TARGET_BUCKET")
+TARGET_BUCKET = os.getenv("TARGET_BUCKET", "wellcomecollection-archivematica-staging-transfer-source")
 
 def shoot_number_to_accession_id(accession_number, shoot_number):
     """
@@ -34,7 +34,7 @@ def transfer_shoot(from_session, to_session, shoot_number, accession_number, max
     tmpfolder = root_dir.name
     source_folder = os.path.join(tmpfolder, "source")
     target_folder = os.path.join(tmpfolder, "target")
-    already_up = [match.group(1) for match in (re_extract_suffix.search(o.key) for o in get_target_bucket(to_session, TARGET_BUCKET).filter(Prefix=f"born-digital-accessions/{accession_id}")) if match]
+    already_up = [match.group(1) for match in (re_extract_suffix.search(o.key) for o in get_target_bucket(to_session, TARGET_BUCKET).objects.filter(Prefix=f"born-digital-accessions/{accession_id}")) if match]
     for files, suffix in download_shoot(from_session, shoot_number, source_folder, max_batch_bytes, ignore_suffixes=already_up):
         upload(
             to_session,
