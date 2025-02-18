@@ -1,3 +1,15 @@
+"""
+Compile a list of "touchable" files, ie. that have been transferred successfully to wellcomecollection-archivematica-transfer-source
+but failed to be ingested into the storage-service
+
+Usage:
+Given a list of expected_ingests generated with compile_expected_list.py
+
+> cat expected_ingests.txt | python src/scripts/compile_touchable.py <production | staging>
+
+"""
+
+
 import boto3
 import sys
 import os
@@ -37,24 +49,21 @@ def get_failed_subshoots(session, subshoots):
             yield pair[0]
 
 
-def find_objects(session, bucket,  object_keys):
+def find_objects(session, bucket, shoots_or_subshoots):
     """
     Look in a bucket to find all the zip objects corresponding to
-    a list of shoot numbers (e.g. 2754_CP000200).
-
-    These objects may be named with the shoot number alone, e.g. 2754_CP000200.zip
-    or may be part of a broken-up shoot with a suffix, e.g. 2754_CP000200_001.zip
+    a list of shoots (e.g. 2754_CP000200) or subshoots (e.g. 2754_CP000300_001)
     """
     bucket = session.resource('s3').Bucket(bucket)
-    for shoot_id in object_keys:
-        prefix = f"born-digital-accessions/{shoot_id.strip()}"
-        for obj in bucket.objects.filter(Prefix=prefix):
+    for id in shoots_or_subshoots:
+        object_key = f"born-digital-accessions/{id.strip()}"
+        for obj in bucket.objects.filter(Prefix=object_key):
             if obj.key[-4:] == ".zip":
                 yield obj.key
 
 
 if __name__ == '__main__':
-    objects = find_objects(boto3.Session(profile_name="digitisation-developer"), BUCKETS[sys.argv[1]],  sys.stdin.readlines())
+    objects = find_objects(boto3.Session(profile_name="digitisation-developer"), BUCKETS[sys.argv[1]], sys.stdin.readlines())
     print("\n".join(
         get_failed_subshoots(
             boto3.Session(profile_name="platform-developer"), objects)
