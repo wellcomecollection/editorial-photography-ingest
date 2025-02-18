@@ -2,7 +2,7 @@ import os
 import pytest
 import pyfakefs
 from transferrer.download import download_shoot_folder
-from restore import restore_shoot_folder
+from transferrer.restore import restore_shoot_folder
 import math
 def test_ignores_metadata_files(glacier_shoot_bucket, fs):
     restore_shoot_folder(glacier_shoot_bucket, "PITEST")

@@ -3,7 +3,7 @@ import os
 import boto3
 import json
 import logging
-from restore import restore_shoot_folder
+from transferrer.restore import restore_shoot_folder
 from transferrer.common import get_source_bucket
 
 logger = logging.getLogger(__name__)
