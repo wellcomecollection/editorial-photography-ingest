@@ -34,12 +34,17 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
             file.writelines(f"{prefix}\n")
     elif mode == "delete": 
       try: 
-          s3.delete_objects(
-            Bucket=bucket,
-            Delete={
-                'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
-            }
-          )
+          # delete all versions permanently
+          for obj in objects_to_delete: 
+              bucket.object_versions.filter(Prefix=obj.key).delete() 
+          
+          # add a DELETE marker to the current version of the object
+          # s3.delete_objects(
+          #   Bucket=bucket,
+          #   Delete={
+          #       'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
+          #   }
+          # )
       except Exception as err:
           with open("delete_failures.txt", "a") as file:
               file.write(err)
