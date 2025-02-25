@@ -1,6 +1,36 @@
 import argparse
 import boto3
+from botocore.exceptions import ClientError
 import sys
+import json
+
+def grant_delete_permission(session: boto3.session.Session, prefix: str):
+    iam = session.resource('iam')
+    role_name = "delete_photoshoots"
+    policy_name = f"delete_photoshoots_policy-{prefix}"
+    resource = f"wellcomecollection-editorial-photography/{prefix}/*"
+
+    policy_doc = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow", 
+                "Action": "s3:DeleteObject", 
+                "Resource": resource
+            }     
+        ]
+    }
+
+    try:
+        iam.put_role_policy(
+            RoleName=role_name,
+            PolicyName=policy_name,
+            PolicyDocument=json.dumps(policy_doc)
+        )
+    except ClientError as error:
+        print(f"Error attaching policy {policy_name}")
+        print(error)
+        raise
 
 def shoot_number_to_folder_path(shoot_number):
     """
@@ -34,17 +64,19 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
             file.writelines(f"{prefix}\n")
     elif mode == "delete": 
       try: 
-          # delete all versions permanently
-          for obj in objects_to_delete: 
-              bucket.object_versions.filter(Prefix=obj.key).delete() 
-          
+          grant_delete_permission(session, prefix)
+          sts = session.resource('sts')
+          sts.assume_role(
+            RoleArn="arn:aws:iam::760097843905:role/delete_photoshoots",
+            RoleSessionName=f"attach_policy_{prefix}"
+          )
           # add a DELETE marker to the current version of the object
-          # s3.delete_objects(
-          #   Bucket=bucket,
-          #   Delete={
-          #       'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
-          #   }
-          # )
+          s3.delete_objects(
+            Bucket=bucket,
+            Delete={
+                'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
+            }
+          )
       except Exception as err:
           with open("delete_failures.txt", "a") as file:
               file.write(err)
@@ -61,7 +93,7 @@ if __name__ == "__main__":
 
     for shoot in sys.stdin.readlines():
         delete_s3_objects(
-            session=boto3.Session(profile_name="platform-read_only"),
+            session=boto3.Session(profile_name="platform-developer"),
             mode=args.mode,
             shoot_number=shoot.replace(" ", "").strip(),
         )        
