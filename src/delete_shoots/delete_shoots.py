@@ -68,12 +68,12 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
             RoleSessionName=f"delete_photoshoot_{prefix}"
           )
           # add a DELETE marker to the current version of the object
-          # s3.delete_objects(
-          #   Bucket=bucket,
-          #   Delete={
-          #       'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
-          #   }
-          # )
+          s3.delete_objects(
+            Bucket=bucket,
+            Delete={
+                'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
+            }
+          )
           with open("deleted_objects.txt", "a") as file:
               file.writelines([f"{obj.key}\n" for obj in objects_to_delete])
       except Exception as err:
