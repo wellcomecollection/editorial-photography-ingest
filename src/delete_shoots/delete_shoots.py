@@ -5,10 +5,10 @@ import sys
 import json
 
 def grant_delete_permission(session: boto3.session.Session, prefix: str):
-    iam = session.resource('iam')
+    iam = session.client('iam')
     role_name = "delete_photoshoots"
-    policy_name = f"delete_photoshoots_policy-{prefix}"
-    resource = f"wellcomecollection-editorial-photography/{prefix}/*"
+    policy_name = f"delete_photoshoots_policy-{prefix[3:]}"
+    resource = f"arn:aws:s3:::wellcomecollection-editorial-photography/{prefix}/*"
 
     policy_doc = {
         "Version": "2012-10-17",
@@ -62,10 +62,10 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
     elif mode == "delete": 
       try: 
           grant_delete_permission(session, prefix)
-          sts = session.resource('sts')
+          sts = session.client('sts')
           sts.assume_role(
             RoleArn="arn:aws:iam::760097843905:role/delete_photoshoots",
-            RoleSessionName=f"delete_photoshoot_{prefix}"
+            RoleSessionName=f"delete_photoshoot_{prefix[3:]}"
           )
           # add a DELETE marker to the current version of the object
           s3.delete_objects(
