@@ -12,48 +12,38 @@ Each batch is provided as a list of identifiers for the shoot.
 Shoots consist of the photographs themselves, and some metadata  which is irrelevant for this purpose.
 
 ## Procedure
-Starting with a file containing one shoot identifier per line:
 
-1. Slice the input file into manageable chunks, that the downstream system can manage.  
-Currently hardcoded as 20 in the Makefile `sliced` command.
-```
-make path_to/your_shoot_identifiers_file.sliced
-```
-2. Restore the shoots from Glacier using batch restore.  
-The files are restored for 1 day by default.  
-It will take several hours to restore the files.
-```
-AWS_PROFILE=platform-developer make path_to/a_slice_file.restored
-```
-3. When they have been successfully restored, run the tool to transfer from the editorial photography bucket to the ingest bucket.
-```
-AWS_PROFILE=digitisation-developer make path_to/a_slice_file.transferred.production
-```
-4. The receiving system may be down, so step 5 may need to be run, without having to restore again from step 2.  
-You can use this [dashboard](https://c783b93d8b0b4b11900b5793cb2a1865.eu-west-1.aws.found.io:9243/s/storage-service/app/dashboards#/view/04532600-2dfc-11ed-8fbf-7d74cdf8bbb4?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-1d,to:now))) to check whether the files have been successfully ingested into the storage-service. Filter by `bag.info.externalIdentifier`, the bag's `status.id` should be `succeeded`.   
+The Digital Production team provides us with a list of shoots to ingest.
+
+1. Generate the list of expected ingests using [compile_expected_list.py](src/scripts/compile_expected_list.py). This will be useful to check the progress of the shoots through the pipeline.
+2. Using the [start_restores.py](src/scripts/start_restores.py) script, queue the whole list of shoots. The S3 objects will be restored for 7 days, after which they will be moved back into Glacier Flexible Retrieval storage class. From the `restore_shoots` queue, shoots will automatically move through the pipeline at a rate that all systems involved can manage. 
+3. Check the progress using [compile_pending_list.py](src/scripts/compile_pending_list.py) with the list of expected ingests generated in 1. Once all lines are marked as True, the job is done! 
+
+See [diagrams](terraform/README.md) describing the components and flow. 
 
 ## When it goes wrong
 
-### Touching transferred zips
+Due to the nature of the data being handled, the limitations of lambda functions and the relative fragility of the target system (Archivematica), this pipeline has been built with retries in mind. See below for the most common failure scenarios:
 
-If you cannot find your bag(s) in the above dashboard, the ingest may have failed for ephemeral reasons.
-In this scenario, the shoot zip has been created and transferred to the transfer source bucket. 
+### Large shoot fails to transfer
+
+Shoots are downloaded from `wellcomecollection-editorial-photography` (platform account), then uploaded into `wellcomecollection-archivematica-transfer-source` (digitisation account) where Archivematica picks them up. The download/upload of some large shoots can exceed the maximum lambda timeout. In this case you will see that some parts of the shoot have been transferred while others failed to do so. 
+Take a large shoot CP003524 that is meant to result in the following bags:
+```
+CP003524_001
+CP003524_002
+CP003524_003
+CP003524_004
+```
+If the lambda times out before `_003` and `_004` have been transferred, the original message will end up on `transfer-shoots-production_dlq`. Simply redrive this message to `queue_shoot_transfers-production` so that the transfer is attempted again. The transfer lambda checks whether a shoot/part is already in the target bucket before starting the download/upload so the amount of data to move will be less the second time around. 
+
+### Archivematica fails to process the bag
+
+In this scenario, the shoot zip(s) has been created and transferred to the transfer source bucket, but failed at some point in Archivematica (could be marked as "failed", or nowhere to be found in the storage-service).
 It does not need to go through the whole restore-transfer process again.
 
-Instead, the zip in the transfer source bucket can be "touched".  There are two approaches:
+Instead, the zip in the transfer source bucket can be ["touched"](terraform/modules/toucher_lambda/README.md). Essentially we make it look like the zip was just uploaded, which prompt Archivematica to process it again.
 
-1. If there is a small number (<=20ish), you can trigger this update using `touch.py`. Feed it a file containing one S3 key to touch per line, thus:
-```
-AWS_PROFILE=digitisation-developer make path_to/your_list_of_S3_keys_to_touch.touched.production
-```
+1. Generate a list of "touchable" S3 keys using [compile_touchable](src/scripts/compile_touchable.py). 
 
-2. If there are many, or Archivematica is already busy with other things, then this is better managed by the toucher Lambda.
-
-```
-cat path_to/your_list_of_S3_keys_to_touch | AWS_PROFILE=digitisation-developer client/queue_touches.py production
-```
-
-## How
-See `Makefile` for more detail about each step 
-1. Restoration is asynchronous and can be triggered from a command line.
-2. Once restored, the transfer should be triggered. This will run on Lambda, driven by a queue.
+2. Feed the list to [start_touches.py](src/scripts/start_touches.py) to queue the S3 objects to be touched.

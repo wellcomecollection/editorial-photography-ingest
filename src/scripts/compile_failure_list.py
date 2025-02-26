@@ -1,17 +1,17 @@
 """
 Produce a list of records that have failed since a given date/time.
+
 Usage:
 
-> python compile_failure_list.py 2024-09-05T40:00:00
+> python src/scripts/compile_failure_list.py 2024-09-05T40:00:00
 
 This will print out the S3 keys of all the zips that have been
 transferred to Archivematica, but failed to fully process, since 1400 on the 5th of September 2024.
 
-
 """
 import boto3
 import datetime
-from reporting_client import get_es_client
+from scripts.reporting_client import get_es_client
 
 
 def get_failures_since(session, since_time):
@@ -46,12 +46,9 @@ def get_query(since_time):
         }
     }
 
-
 def main():
     import sys
-    get_failures_since(boto3.Session(), datetime.datetime.fromisoformat(sys.argv[1]))
-
-
+    get_failures_since(boto3.Session(profile_name="platform-developer"), datetime.datetime.fromisoformat(sys.argv[1]))
 
 if __name__ == "__main__":
     main()

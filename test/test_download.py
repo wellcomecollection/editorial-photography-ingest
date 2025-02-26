@@ -7,14 +7,14 @@ import math
 
 
 def test_ignores_metadata_files(available_shoot_bucket, fs):
-    next(download_shoot_folder(available_shoot_bucket, "PITEST", "downloaded", max_batch_bytes=math.inf))
+    next(download_shoot_folder(available_shoot_bucket, "PITEST", "downloaded", max_batch_bytes=math.inf, ignore_suffixes=[]))
     downloaded_files = os.listdir("downloaded")
     assert sorted(downloaded_files) == ['PI_TEST_001.tif', 'PI_TEST_002.tif']
 
 
 def test_downloads_restored_bucket(glacier_shoot_bucket, fs):
     with pytest.raises(Exception):
-        next(download_shoot_folder(glacier_shoot_bucket, "PITEST", "downloaded", max_batch_bytes=math.inf))
+        next(download_shoot_folder(glacier_shoot_bucket, "PITEST", "downloaded", max_batch_bytes=math.inf, ignore_suffixes=[]))
     downloaded_files = os.listdir("downloaded")
     assert sorted(downloaded_files) == []
 
@@ -27,4 +27,4 @@ def test_fails_partially_unrestored_bucket(available_shoot_bucket, fs):
                        ExtraArgs={'StorageClass': 'GLACIER'})
 
     with pytest.raises(Exception):
-        next(download_shoot_folder(available_shoot_bucket, "PITEST", "downloaded",  max_batch_bytes=math.inf))
+        next(download_shoot_folder(available_shoot_bucket, "PITEST", "downloaded",  max_batch_bytes=math.inf, ignore_suffixes=[]))

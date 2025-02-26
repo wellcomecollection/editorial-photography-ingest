@@ -3,9 +3,6 @@ Like unix touch, this updates objects in s3 without substantive change.
 
 This is intended for use when Archivematica has ephemerally failed to accept some of the shoot zips.
 
-A fortnightly list of failed zips is published to Slack (TBC) but you could also generate it by looking elsewhere, 
-eg. the storage-service's ingests dashboard in the reporting cluster
-
 """
 
 import sys
@@ -39,7 +36,7 @@ def touch_object(session, bucket, key):
     )
 
 
-def touch_objects(session, bucket,  object_keys):
+def touch_objects(session, bucket, object_keys):
     for object_key in object_keys:
         touch_object(session, bucket, object_key.strip())
 

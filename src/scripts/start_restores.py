@@ -1,3 +1,21 @@
+"""
+First step in ingesting corporate/editorial photography from wellcomecollection-editorial-photography S3 bucket 
+into the storage-service via Archivematica. 
+
+Usage:
+
+Provide a newline separated list of shoots to ingest on STDIN,
+e.g. given a file shoot_ids_list.txt:
+```
+CP003481
+CP003484
+CP003488
+CP003490
+CP003500 
+```
+> cat shoot_ids_list.txt | src/scripts/start_restores.py
+"""
+
 import sys
 import boto3
 

@@ -17,8 +17,8 @@ module "transfer_lambda" {
   runtime = "python3.12"
   handler = "lambda_function.lambda_handler"
   filename    = var.lambda_zip.output_path
-  memory_size = 2048
-  timeout     = var.lambda_timeout
+  memory_size = 4096
+  timeout     = 900
   environment = {
     variables = {
       ACCESSION_NUMBER = "2754"

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 THREADS = 10
 
 
-def restore_s3_folder(bucket, s3_folder: str, days_to_keep=3):
+def restore_s3_folder(bucket, s3_folder: str, days_to_keep=7):
     with ThreadPoolExecutor(max_workers=THREADS) as executor:
         for key in executor.map(
             partial(restore_file, days_to_keep=days_to_keep),
