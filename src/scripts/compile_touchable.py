@@ -55,8 +55,8 @@ def find_objects(session, bucket, shoots_or_subshoots):
     a list of shoots (e.g. 2754_CP000200) or subshoots (e.g. 2754_CP000300_001)
     """
     bucket = session.resource('s3').Bucket(bucket)
-    for id in shoots_or_subshoots:
-        object_key = f"born-digital-accessions/{id.strip()}"
+    for shoot_id in shoots_or_subshoots:
+        object_key = f"born-digital-accessions/{shoot_id.strip()}"
         for obj in bucket.objects.filter(Prefix=object_key):
             if obj.key[-4:] == ".zip":
                 yield obj.key
