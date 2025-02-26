@@ -10,7 +10,7 @@ module "transfer_lambda" {
 module "input_queue" {
   source = "../notification_queue"
   environment = var.environment
-  queue_visibility_timeout = var.queue_visibility_timeout
+  queue_visibility_timeout = 9000
   action_name = "transfer-shoots"
   extra_topics = var.extra_topics
 }

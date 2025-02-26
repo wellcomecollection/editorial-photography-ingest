@@ -23,7 +23,8 @@ module "toucher_lambda" {
   runtime = "python3.12"
   handler = "touch.lambda_main"
   filename    = var.lambda_zip.output_path
-  timeout     = 300
+  timeout     = 600
+  memory_size = 1024
 
   environment = {
     variables = {

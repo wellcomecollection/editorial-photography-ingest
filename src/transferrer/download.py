@@ -11,8 +11,8 @@ from transferrer.batching import batch_by_total
 logger = logging.getLogger(__name__)
 
 # This variable governs the degree of parallelism to use when downloading files.
-# The correct number is to be discovered by experimentation
-THREADS = 20
+# Previously set to 20, but caused urllib3.connectionpool:Connection pool is full errors
+THREADS = 10
 
 
 def get_shoot_batches(bucket, s3_folder, max_batch_bytes):
@@ -45,14 +45,14 @@ def download_shoot(session: boto3.session.Session, shoot_number, local_dir, max_
     # Allowing enough connections for each thread to have two of them
     # prevents the `urllib3.connectionpool:Connection pool is full` warning
     # and allows for better connection reuse.
-    return download_shoot_folder(get_source_bucket(session, max_connections=THREADS * 5), shoot_number, local_dir, max_batch_bytes, ignore_suffixes)
+    return download_shoot_folder(get_source_bucket(session, max_connections=THREADS * 10), shoot_number, local_dir, max_batch_bytes, ignore_suffixes)
 
 
 def download_shoot_folder(bucket, shoot_number, local_dir, max_batch_bytes, ignore_suffixes):
     return download_s3_folder(bucket, shoot_number_to_folder_path(shoot_number), local_dir, max_batch_bytes, ignore_suffixes)
 
 
-def download_s3_folder(bucket, s3_folder: str, local_dir: str, max_batch_bytes: int, ignore_suffixes):
+def download_s3_folder(bucket, s3_folder: str, local_dir: str, max_batch_bytes: int, ignore_suffixes: list):
     """
     Download the relevant content from an s3 folder to local_dir.
 
