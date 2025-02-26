@@ -59,9 +59,6 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
     if mode == "dry-run":
         with open("planned_deletions.txt", "a") as file:
             file.writelines([f"{obj.key}\n" for obj in objects_to_delete])
-    elif mode == "list-prefixes":
-        with open("prefixes.txt", "a") as file:
-            file.writelines(f"{prefix}\n")
     elif mode == "delete": 
       try: 
           grant_delete_permission(session, prefix)
@@ -71,12 +68,14 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
             RoleSessionName=f"delete_photoshoot_{prefix}"
           )
           # add a DELETE marker to the current version of the object
-          s3.delete_objects(
-            Bucket=bucket,
-            Delete={
-                'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
-            }
-          )
+          # s3.delete_objects(
+          #   Bucket=bucket,
+          #   Delete={
+          #       'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
+          #   }
+          # )
+          with open("deleted_objects.txt", "a") as file:
+              file.writelines([f"{obj.key}\n" for obj in objects_to_delete])
       except Exception as err:
           with open("delete_failures.txt", "a") as file:
               file.write(err)
@@ -85,7 +84,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="List the planned deletions or effect them.")
     parser.add_argument(
         "--mode",
-        choices=["dry-run", "delete", "list-prefixes"],
+        choices=["dry-run", "delete"],
         default="dry-run",
         help="Defaults to dry run: the planned deletions will be listed but not effected.",
     )
