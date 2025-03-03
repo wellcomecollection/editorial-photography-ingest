@@ -7,7 +7,7 @@ import json
 def grant_delete_permission(session: boto3.session.Session, prefix: str):
     iam = session.client('iam')
     role_name = "delete_photoshoots"
-    policy_name = f"delete_photoshoots_policy-{prefix[3:]}"
+    policy_name = "delete_photoshoots_policy"
     resource = f"arn:aws:s3:::wellcomecollection-editorial-photography/{prefix}/*"
 
     policy_doc = {
@@ -16,7 +16,7 @@ def grant_delete_permission(session: boto3.session.Session, prefix: str):
             {
                 "Effect": "Allow", 
                 "Action": [
-                    "s3:DeleteObject"
+                    "s3:DeleteObject",
                     "s3:DeleteObjectVersion"
                 ], 
                 "Resource": resource
