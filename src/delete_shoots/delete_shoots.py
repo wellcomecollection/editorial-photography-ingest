@@ -15,7 +15,10 @@ def grant_delete_permission(session: boto3.session.Session, prefix: str):
         "Statement": [
             {
                 "Effect": "Allow", 
-                "Action": "s3:DeleteObject", 
+                "Action": [
+                    "s3:DeleteObject"
+                    "s3:DeleteObjectVersion"
+                ], 
                 "Resource": resource
             }     
         ]
