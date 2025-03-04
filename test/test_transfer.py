@@ -1,4 +1,4 @@
-from src.transferrer.transfer import transfer_shoot
+from transferrer.transfer import transfer_shoot
 import os
 
 
