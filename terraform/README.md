@@ -2,24 +2,24 @@
 ## How does it all fit together?
 
 In the evening, the Restorer 
-* Pulls a day's worth of shoots from the restore
+* Pulls a day's worth of shoots from the `restore_shoots` queue
 * Restores the from Glacier
-* Notifies the transfer throttle queue.
+* Notifies the transfer throttle `queue_shoot_transfers` queue.
 
 Restoration takes a nondeterministic amount of time up to 12 hours
 ```mermaid
 sequenceDiagram
-    Restore Schedule->>+Restorer: It's 2000
-    Restorer->>+Restore Queue: Gimme 60
-    Restore Queue -->> Restorer: OK
-    Restorer->>S3:Restore
-    S3 -->>Restorer: On it!
-    Restorer->>-Transfer Throttle Queue:60 shoots
+    Restore Schedule->>+Restorer: It's 20:00;
+    Restorer->>+Restore Queue: Gimme 60;
+    Restore Queue -->> Restorer: OK;
+    Restorer->>S3:Restore;
+    S3 -->>Restorer: On it!;
+    Restorer->>-Transfer Throttle Queue:60 shoots;
 ```
 
 Across the day, the transfer throttle 
-* pulls a manageable quantity from its queue
-* shifts them onto the transfer queue
+* pulls a manageable quantity from its `queue_shoot_transfers` queue
+* shifts them onto the `transfer-shoots` queue
 
 The transferrer then transfers everything on its queue
 ```mermaid

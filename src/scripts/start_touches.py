@@ -1,3 +1,12 @@
+"""
+Given a list of "touchable" files generated with compile_touchable.py, this queues them to be touched in batches of 10 on a schedule
+
+Usage :
+
+> cat touchables.txt | src/scripts/start_touches.py
+
+"""
+
 import sys
 import boto3
 
