@@ -1,7 +1,7 @@
 from unittest import mock
 
 import pytest
-from mediagraph.mediagraph import *
+from mediagraph import *
 from requests import Session, Response
 
 
