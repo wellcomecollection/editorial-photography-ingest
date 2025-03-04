@@ -1,12 +1,11 @@
 import sys
 import os
 import json
-import time
 from concurrent.futures import ThreadPoolExecutor
 
 from tqdm import tqdm
 
-from mediagraph import Mediagraph
+from .mediagraph import Mediagraph
 
 
 def main(shoot_collections, api_token, org_number):

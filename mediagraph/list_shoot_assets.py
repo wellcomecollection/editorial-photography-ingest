@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 import sys
 import os
 import json
-from mediagraph import Mediagraph
+from .mediagraph import Mediagraph
 
 def main(shoot_numbers, api_token, org_number):
     m = Mediagraph(api_token, org_number)
