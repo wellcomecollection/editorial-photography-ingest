@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from tqdm import tqdm
 
-from .mediagraph import Mediagraph
+from mediagraph import Mediagraph
 
 
 def main(shoot_collections, api_token, org_number):
