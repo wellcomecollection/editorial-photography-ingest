@@ -1,8 +1,6 @@
 from unittest import mock
 
 import pytest
-from requests.cookies import MockRequest
-
 from mediagraph import *
 from requests import Session, Response
 
