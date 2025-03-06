@@ -1,3 +1,15 @@
+"""
+Once selected shoots have been ingested into the storage-service, 
+the Digital Production team asks us to delete the files from the source bucket (wellcomecollection-editorial-photograph)
+
+Usage:
+  dry run mode will generate a list of every S3 object up for deletion:
+  cat <path/to/list/of/shootsIds/to/delete> | python delete_shoots.py --mode=dry-run
+
+  delete mode will effectively delete all of the above:
+  cat <path/to/list/of/shootsIds/to/delete> | python delete_shoots.py --mode=delete
+"""
+
 import argparse
 import boto3
 from botocore.exceptions import ClientError
@@ -53,6 +65,7 @@ def shoot_number_to_folder_path(shoot_number):
 
 def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: str):
     s3 = session.resource('s3')
+    s3_client = session.client('s3')
     bucket = s3.Bucket("wellcomecollection-editorial-photography")
 
     prefix = shoot_number_to_folder_path(shoot_number)
@@ -70,9 +83,11 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
             RoleArn="arn:aws:iam::760097843905:role/delete_photoshoots",
             RoleSessionName=f"delete_photoshoot_{prefix[3:]}"
           )
+          with open("deleted_objects.txt", "a") as file:
+              file.writelines([f"{obj.key}\n" for obj in objects_to_delete])
           # add a DELETE marker to the current version of the object
-          s3.delete_objects(
-            Bucket=bucket,
+          s3_client.delete_objects(
+            Bucket="wellcomecollection-editorial-photography",
             Delete={
                 'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
             }
@@ -82,7 +97,7 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
           print(f"Done deleting shoot {shoot_number}")
       except Exception as err:
           with open("delete_failures.txt", "a") as file:
-              file.write(err)
+              file.write(f"Shoot {prefix}: {str(err)}\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="List the planned deletions or effect them.")
