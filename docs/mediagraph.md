@@ -25,7 +25,7 @@ This is done first, and as a separate step, for three reasons:
 2.  To minimise the risk when Mediagraph refuses to service some requests
     * When this was first run, it appears that Mediagraph would handle roughly 1000 shoots, then
       decline all subsequent requests 
-3.  It allows a PoLP approach, where a user without delete permissions can prepare the data before running the deletion.
+3.  It allows a [PoLP approach](http://en.wikipedia.org/wiki/Principle_of_least_privilege), where a user without delete permissions can prepare the data before running the deletion.
 
 Provide a line-separated list of shoot numbers on STDIN to list_shoot_assets, thus:
 ```commandline
