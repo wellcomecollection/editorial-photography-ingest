@@ -92,8 +92,6 @@ def delete_s3_objects(session: boto3.session.Session, shoot_number: str, mode: s
                 'Objects': [{ "Key": obj.key } for obj in objects_to_delete]
             }
           )
-          with open("deleted_objects.txt", "a") as file:
-              file.writelines([f"{obj.key}\n" for obj in objects_to_delete])
           print(f"Done deleting shoot {shoot_number}")
       except Exception as err:
           with open("delete_failures.txt", "a") as file:
